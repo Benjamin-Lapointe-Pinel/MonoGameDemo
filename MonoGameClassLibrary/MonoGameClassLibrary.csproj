@@ -49,12 +49,12 @@
     <Compile Include="Animation\Frame.cs" />
     <Compile Include="Physics\DebugPlatform.cs" />
     <Compile Include="DrawHelper.cs" />
-    <Compile Include="Physics\Box.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Physics\CollisionHelper.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="Physics\PhysicsEngine.cs" />
-    <Compile Include="Physics\AxisAlignedBoundingBox.cs" />
+    <Compile Include="Physics\Box.cs" />
+    <Compile Include="Physics\RectangleBox.cs" />
     <Compile Include="Physics\SpatialGrid.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainGame.cs" />
@@ -102,15 +102,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="C:\Program Files (x86)\MonoGame\v3.0\Assemblies\DesktopGL\libSDL2-2.0.0.dylib">
-      <Link>libSDL2-2.0.0.dylib</Link>
+      <Link>MonoGame\libSDL2-2.0.0.dylib</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="C:\Program Files (x86)\MonoGame\v3.0\Assemblies\DesktopGL\libopenal.1.dylib">
-      <Link>libopenal.1.dylib</Link>
+      <Link>MonoGame\libopenal.1.dylib</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="C:\Program Files (x86)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll.config">
-      <Link>MonoGame.Framework.dll.config</Link>
+      <Link>MonoGame\MonoGame.Framework.dll.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="MonoGame\app.manifest" />

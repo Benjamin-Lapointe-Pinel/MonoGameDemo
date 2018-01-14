@@ -13,98 +13,88 @@ namespace MonoGameClassLibrary.Physics
 	public class PhysicsEngine : EntityManager.Drawable
 	{
 		public SpatialGrid spatialGrid { get; protected set; }
-		protected List<AxisAlignedBoundingBox> boxes;
+		protected List<Box> boxes;
 		public Vector2 Gravity;
 
 		public PhysicsEngine()
 		{
 			spatialGrid = new SpatialGrid(100, 100);
-			boxes = new List<AxisAlignedBoundingBox>();
+			boxes = new List<Box>();
 			Gravity = new Vector2(0, 5000);
 
 			DrawOrder = int.MaxValue;
 		}
 
-		public void Add(AxisAlignedBoundingBox box)
+		public void Add(Box box)
 		{
 			boxes.Add(box);
 			spatialGrid.AddAxisAlignedBoundingBox(box);
 		}
 
-		public void Remove(AxisAlignedBoundingBox box)
+		public void Remove(Box box)
 		{
 			boxes.Remove(box);
 			spatialGrid.RemoveAxisAlignedBoundingBox(box);
 		}
-
-		//BUG potentiel : résolution de collision de deux objets qui bougent
+		
 		public override void Update(GameTime gameTime)
 		{
-			foreach (AxisAlignedBoundingBox box in boxes)
+			ApplyPhysics(gameTime);
+			ApplyCollisions();
+		}
+
+		public void ApplyCollisions()
+		{
+			foreach (Box box in boxes)
 			{
-				if (box is Box)
-				{
-					UpdateBox(gameTime, box as Box);
-				}
-				
+				spatialGrid.RemoveAxisAlignedBoundingBox(box);
+
+				CollisionHelper.SetCollisionFlag(box, spatialGrid);
+
+				spatialGrid.AddAxisAlignedBoundingBox(box);
 			}
 		}
 
-		private void UpdateBox(GameTime gameTime, Box box)
+		//BUG : résolution de collision de deux objets qui bougent, pas précis
+		private void ApplyPhysics(GameTime gameTime)
 		{
-			spatialGrid.RemoveAxisAlignedBoundingBox(box);
-
-			gravity(gameTime, box);
-
-			int steps = 1;
-			Vector2 oldSpeed = box.Speed;
-			if (box.Speed.Length() > SpatialGrid.TILE_SIZE)
+			foreach (Box box in boxes)
 			{
-				//Tunneling resolution
-				steps = (int)Math.Ceiling(box.Speed.Length() / SpatialGrid.TILE_SIZE);
-				TimeSpan slowMotion = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
-				gameTime = new GameTime(gameTime.TotalGameTime, slowMotion);
-			}
-			for (int i = 0; i < steps; i++)
-			{
-				box.Update(gameTime);
-				if (box.Solid)
-				{
-					CollisionHelper.Collision(gameTime, box, spatialGrid.GetProbableCollisions(box));
-				}
-			}
-			if (steps > 1)
-			{
-				if (box.Speed.X != 0)
-				{
-					box.Speed.X = oldSpeed.X;
-				}
-				if (box.Speed.Y != 0)
-				{
-					box.Speed.Y = oldSpeed.Y;
-				}
-			}
+				spatialGrid.RemoveAxisAlignedBoundingBox(box);
 
-			//Get surrounding tiles
-			AxisAlignedBoundingBox axisAlignedBoundingBox = new AxisAlignedBoundingBox(box);
-			axisAlignedBoundingBox.Inflate(2, 2);
-			CollisionHelper.setCollisionFlags(box, spatialGrid.GetProbableCollisions(axisAlignedBoundingBox));
+				if (box.AffectedByGravity)
+				{
+					gravity(gameTime, box);
+				}
 
-			spatialGrid.AddAxisAlignedBoundingBox(box);
+				int steps = 1;
+				GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
+				if (box.Speed.Length() > SpatialGrid.TILE_SIZE)
+				{
+					//Tunneling resolution
+					steps = (int)Math.Ceiling(box.Speed.Length() / SpatialGrid.TILE_SIZE);
+					relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
+				}
+				for (int i = 0; i < steps; i++)
+				{
+					box.Update(relativeGameTime);
+
+					CollisionHelper.PhysicalCollisions(relativeGameTime, box, spatialGrid);
+				}
+
+				spatialGrid.AddAxisAlignedBoundingBox(box);
+			}
 		}
 
 		private void gravity(GameTime gameTime, Box box)
 		{
 			float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			if (box.IsAffectedByGravity)
-			{
-				box.Speed += Gravity * totalSeconds;
-			}
+			box.Speed += Gravity * totalSeconds;
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			foreach (AxisAlignedBoundingBox box in boxes)
+			foreach (Box box in boxes)
 			{
 				spriteBatch.Draw(DrawHelper.Pixel, box.Rectangle, new Color(Color.Magenta, 0.5f));
 			}

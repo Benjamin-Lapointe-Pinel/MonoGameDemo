@@ -11,11 +11,11 @@ namespace MonoGameClassLibrary.Physics
 {
 	public class DebugPlatform : EntityManager.Drawable
 	{
-		public AxisAlignedBoundingBox box { get; protected set; }
+		public Box box { get; protected set; }
 
 		public DebugPlatform(Rectangle rectangle)
 		{
-			this.box = new AxisAlignedBoundingBox(rectangle, true);
+			this.box = new Box(this, rectangle, true);
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)

@@ -10,28 +10,52 @@ namespace MonoGameClassLibrary.Physics
 {
 	public static class CollisionHelper
 	{
-		public static void Collision(GameTime gameTime, Box box, IEnumerable<AxisAlignedBoundingBox> boxes)
+		public static void SetCollisionFlag(Box mainBox, SpatialGrid spatialGrid)
 		{
-			box.ResetCollisionFlags();
-
-			List<AxisAlignedBoundingBox> solids;
-			List<AxisAlignedBoundingBox> nonsolids;
-			SeperateSolidBoxes(boxes, out solids, out nonsolids);
-
-			if (solids.Count > 0)
+			mainBox.ClearCollisions();
+			
+			foreach (Box box in spatialGrid.GetProbableCollisions(mainBox))
 			{
-				SolidCollisions(gameTime, box, solids);
-			}
-			if (nonsolids.Count > 0)
-			{
-				//TODO
+				Box.Side side = Box.Side.None;
+				bool collision = false;
+
+				if (mainBox.Intersects(box))
+				{
+					side |= Box.Side.Unknown;
+					collision = true;
+				}
+				if ((mainBox.Speed.X <= 0) && (LeftCollision(mainBox, box)))
+				{
+					side |= Box.Side.Left;
+					collision = true;
+				}
+				if ((mainBox.Speed.X >= 0) && (RightCollision(mainBox, box)))
+				{
+					side |= Box.Side.Right;
+					collision = true;
+				}
+				if ((mainBox.Speed.Y <= 0) && (TopCollision(mainBox, box)))
+				{
+					side |= Box.Side.Top;
+					collision = true;
+				}
+				if ((mainBox.Speed.Y >= 0) && (BottomCollision(mainBox, box)))
+				{
+					side |= Box.Side.Bottom;
+					collision = true;
+				}
+
+				if (collision)
+				{
+					mainBox.AddCollision(box, side);
+				}
 			}
 		}
 
-		public static void SolidCollisions(GameTime gameTime, Box box, List<AxisAlignedBoundingBox> solids)
+		public static void PhysicalCollisions(GameTime gameTime, Box box, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
-			if (Intersect(box, solids))
+			if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
 			{
 				Vector2 oldSpeed = box.Speed;
 				Rectangle OldRectangle = new Rectangle();
@@ -39,7 +63,7 @@ namespace MonoGameClassLibrary.Physics
 				while (box.Rectangle != OldRectangle)
 				{
 					OldRectangle = box.Rectangle;
-					if (Intersect(box, solids))
+					if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
 					{
 						//Défait le mouvement qui créer la collion
 						box.Speed = Vector2.Negate(box.Speed);
@@ -55,67 +79,81 @@ namespace MonoGameClassLibrary.Physics
 				}
 
 				//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
+				IEnumerable<Box> solids = spatialGrid.GetProbableSolidCollisions(box);
 				box.Speed = oldSpeed;
-				if (((box.Speed.X < 0) && (leftCollision(box, solids))) ||
-					((box.Speed.X > 0) && ((rightCollision(box, solids)))))
+				if (((box.Speed.X < 0) && (LeftCollision(box, solids))) ||
+					((box.Speed.X > 0) && ((RightCollision(box, solids)))))
 				{
 					box.Speed.X = 0;
 				}
-				if (((box.Speed.Y < 0) && (topCollision(box, solids))) ||
-					((box.Speed.Y > 0) && (bottomCollision(box, solids))))
+				if (((box.Speed.Y < 0) && (TopCollision(box, solids))) ||
+					((box.Speed.Y > 0) && (BottomCollision(box, solids))))
 				{
 					box.Speed.Y = 0;
 				}
 
-				box.Update(gameTime);
+				box.Update(gameTime); //Pas parfait du tout
 
 				//New collision possible
 				if (!box.Speed.Equals(Vector2.Zero))
 				{
 					//Resolve new movement
-					SolidCollisions(gameTime, box, solids);
+					PhysicalCollisions(gameTime, box, spatialGrid);
 				}
 			}
 		}
 
-		public static void setCollisionFlags(AxisAlignedBoundingBox axisAlignedBoundingBox, IEnumerable<AxisAlignedBoundingBox> boxes)
+		public static bool LeftCollision(Box mainBox, Box box)
 		{
-			List<AxisAlignedBoundingBox> solids;
-			SeperateSolidBoxes(boxes, out solids, out _);
+			mainBox.X -= 1;
+			bool result = mainBox.Intersects(box);
+			mainBox.X += 1;
 
-			if (leftCollision(axisAlignedBoundingBox, solids))
-			{
-				axisAlignedBoundingBox.FlagLeftCollision();
-			}
-			if (rightCollision(axisAlignedBoundingBox, solids))
-			{
-				axisAlignedBoundingBox.FlagRightCollision();
-			}
-			if (topCollision(axisAlignedBoundingBox, solids))
-			{
-				axisAlignedBoundingBox.FlagTopCollision();
-			}
-			if (bottomCollision(axisAlignedBoundingBox, solids))
-			{
-				axisAlignedBoundingBox.FlagBottomCollision();
-			}
+			return result;
 		}
 
-		public static bool rightCollision(AxisAlignedBoundingBox box, List<AxisAlignedBoundingBox> boxes)
+		public static bool RightCollision(Box mainBox, Box box)
+		{
+			mainBox.X += 1;
+			bool result = mainBox.Intersects(box);
+			mainBox.X -= 1;
+
+			return result;
+		}
+
+		public static bool TopCollision(Box mainBox, Box box)
+		{
+			mainBox.Y -= 1;
+			bool result = mainBox.Intersects(box);
+			mainBox.Y += 1;
+
+			return result;
+		}
+
+		public static bool BottomCollision(Box mainBox, Box box)
+		{
+			mainBox.Y += 1;
+			bool result = mainBox.Intersects(box);
+			mainBox.Y -= 1;
+
+			return result;
+		}
+
+		public static bool RightCollision(Box box, IEnumerable<Box> boxes)
 		{
 			bool result = false;
 
 			box.X += 1;
 			if (Intersect(box, boxes))
 			{
-				result =  true;
+				result = true;
 			}
 			box.X -= 1;
 
 			return result;
 		}
 
-		public static bool leftCollision(AxisAlignedBoundingBox box, List<AxisAlignedBoundingBox> boxes)
+		public static bool LeftCollision(Box box, IEnumerable<Box> boxes)
 		{
 			bool result = false;
 
@@ -129,7 +167,7 @@ namespace MonoGameClassLibrary.Physics
 			return result;
 		}
 
-		public static bool topCollision(AxisAlignedBoundingBox box, List<AxisAlignedBoundingBox> boxes)
+		public static bool TopCollision(Box box, IEnumerable<Box> boxes)
 		{
 			bool result = false;
 
@@ -143,7 +181,7 @@ namespace MonoGameClassLibrary.Physics
 			return result;
 		}
 
-		public static bool bottomCollision(AxisAlignedBoundingBox box, List<AxisAlignedBoundingBox> boxes)
+		public static bool BottomCollision(Box box, IEnumerable<Box> boxes)
 		{
 			bool result = false;
 
@@ -157,9 +195,9 @@ namespace MonoGameClassLibrary.Physics
 			return result;
 		}
 
-		private static bool Intersect(AxisAlignedBoundingBox box, IEnumerable<AxisAlignedBoundingBox> axisAlignedBoundingBoxes)
+		private static bool Intersect(Box box, IEnumerable<Box> axisAlignedBoundingBoxes)
 		{
-			foreach (AxisAlignedBoundingBox axisAlignedBoundingBoxe in axisAlignedBoundingBoxes)
+			foreach (Box axisAlignedBoundingBoxe in axisAlignedBoundingBoxes)
 			{
 				if (box.Intersects(axisAlignedBoundingBoxe))
 				{
@@ -167,24 +205,6 @@ namespace MonoGameClassLibrary.Physics
 				}
 			}
 			return false;
-		}
-
-		private static void SeperateSolidBoxes(IEnumerable<AxisAlignedBoundingBox> boxes, out List<AxisAlignedBoundingBox> solids, out List<AxisAlignedBoundingBox> nonSolides)
-		{
-			solids = new List<AxisAlignedBoundingBox>();
-			nonSolides = new List<AxisAlignedBoundingBox>();
-
-			foreach (AxisAlignedBoundingBox box in boxes)
-			{
-				if (box.Solid)
-				{
-					solids.Add(box);
-				}
-				else
-				{
-					nonSolides.Add(box);
-				}
-			}
 		}
 	}
 }

@@ -44,8 +44,8 @@ namespace MonoGameClassLibrary
 #if DEBUG
 				spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(DestinationRectangle.Left, DestinationRectangle.Top, DestinationRectangle.Width, 1), Color.Magenta);
 				spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(DestinationRectangle.Left, DestinationRectangle.Top, 1, DestinationRectangle.Height), Color.Magenta);
-				spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(DestinationRectangle.Left, DestinationRectangle.Bottom, DestinationRectangle.Width, 1), Color.Magenta);
-				spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(DestinationRectangle.Right, DestinationRectangle.Top, 1, DestinationRectangle.Height), Color.Magenta);
+				spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(DestinationRectangle.Left, DestinationRectangle.Bottom - 1, DestinationRectangle.Width, 1), Color.Magenta);
+				spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(DestinationRectangle.Right - 1, DestinationRectangle.Top, 1, DestinationRectangle.Height), Color.Magenta);
 #endif
 			}
 		}

@@ -19,10 +19,10 @@ namespace MonoGameDemo
 		protected Vector2 Acceleration;
 		protected Vector2 MaxSpeed;
 
-		public Character(AnimationSheet animationSheet, Box boundingBox)
+		public Character(AnimationSheet animationSheet, Rectangle boundingBox)
 		{
 			this.animationSheet = animationSheet;
-			this.BoundingBox = boundingBox;
+			this.BoundingBox = new Box(this, boundingBox, false, true, true);
 
 			MaxSpeed = new Vector2(800, 0);
 			Acceleration = new Vector2(MaxSpeed.X * 8, 1600);
@@ -31,27 +31,25 @@ namespace MonoGameDemo
 		public override void Update(GameTime gameTime)
 		{
 			inertia(gameTime);
-
-			if ((animationSheet.CycleIndex != 3) || (animationSheet.CurrentCycle.IsOver))
-			{
-				if (!BoundingBox.BottomCollision)
-				{
-					animationSheet.CycleIndex = 2;
-				}
-				else if (BoundingBox.Speed.X != 0)
-				{
-					animationSheet.CycleIndex = 1;
-				}
-				else
-				{
-					animationSheet.CycleIndex = 0;
-				}
-			}
-			animationSheet.Update(gameTime);
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
+			if (!IsStanding())
+			{
+				animationSheet.CycleIndex = 2;
+			}
+			else if (BoundingBox.Speed.X != 0)
+			{
+				animationSheet.CycleIndex = 1;
+			}
+			else
+			{
+				animationSheet.CycleIndex = 0;
+			}
+
+			animationSheet.Update(gameTime);
+
 			animationSheet.DestinationRectangle = BoundingBox.Rectangle;
 			animationSheet.Draw(spriteBatch, gameTime);
 		}
@@ -74,9 +72,45 @@ namespace MonoGameDemo
 			animationSheet.SpriteEffects = SpriteEffects.None;
 		}
 
+		protected bool IsStanding()
+		{
+			foreach (KeyValuePair<Box, Box.Side> collisions in BoundingBox.Collisions)
+			{
+				if (collisions.Key.Solid)
+				{
+					if (collisions.Value.HasFlag(Box.Side.Bottom))
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		protected bool CanJump()
+		{
+			if (IsStanding())
+			{
+				foreach (KeyValuePair<Box, Box.Side> collisions in BoundingBox.Collisions)
+				{
+					if (collisions.Key.Solid)
+					{
+						if (collisions.Value.HasFlag(Box.Side.Top))
+						{
+							return false;
+						}
+
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+
 		public void Jump(GameTime gameTime)
 		{
-			if (BoundingBox.BottomCollision)
+			if (CanJump())
 			{
 				BoundingBox.Speed.Y -= Acceleration.Y;
 			}

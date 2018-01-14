@@ -11,7 +11,7 @@ namespace MonoGameClassLibrary.Physics
 	public class SpatialGrid : EntityManager.Drawable
 	{
 		public static readonly int TILE_SIZE = 32;
-		public List<AxisAlignedBoundingBox>[,] Tiles { get; protected set; }
+		public List<Box>[,] Tiles { get; protected set; }
 		public int TilesWidth { get { return Tiles.GetLength(0); } }
 		public int TilesHeight { get { return Tiles.GetLength(1); } }
 		public int Width { get { return Tiles.GetLength(0) * TILE_SIZE; } }
@@ -21,54 +21,50 @@ namespace MonoGameClassLibrary.Physics
 		{
 			DrawOrder = int.MaxValue;
 
-			Tiles = new List<AxisAlignedBoundingBox>[width, height];
+			Tiles = new List<Box>[width, height];
 			for (int i = 0; i < Tiles.GetLength(0); i++)
 			{
 				for (int j = 0; j < Tiles.GetLength(1); j++)
 				{
-					Tiles[i, j] = new List<AxisAlignedBoundingBox>();
+					Tiles[i, j] = new List<Box>();
 				}
 			}
 		}
 
-		public void AddAxisAlignedBoundingBox(AxisAlignedBoundingBox axisAlignedBoundingBox)
+		public void AddAxisAlignedBoundingBox(Box axisAlignedBoundingBox)
 		{
-			foreach (List<AxisAlignedBoundingBox> boxes in GetProbableCollisionTiles(axisAlignedBoundingBox))
+			foreach (List<Box> boxes in GetCollisionTiles(axisAlignedBoundingBox))
 			{
 				boxes.Add(axisAlignedBoundingBox);
 			}
 		}
 
-		public void RemoveAxisAlignedBoundingBox(AxisAlignedBoundingBox axisAlignedBoundingBox)
+		public void RemoveAxisAlignedBoundingBox(Box axisAlignedBoundingBox)
 		{
-			foreach (List<AxisAlignedBoundingBox> boxes in GetProbableCollisionTiles(axisAlignedBoundingBox))
+			foreach (List<Box> boxes in GetCollisionTiles(axisAlignedBoundingBox))
 			{
 				boxes.Remove(axisAlignedBoundingBox);
 			}
 		}
 
-		protected IEnumerable<List<AxisAlignedBoundingBox>> GetProbableCollisionTiles(AxisAlignedBoundingBox box)
+		public IEnumerable<Box> GetProbableSolidCollisions(Box mainBox)
 		{
-			int startingI = Math.Max(box.Left / TILE_SIZE, 0);
-			int endingI = Math.Min((box.Right - 1) / TILE_SIZE, Tiles.GetLength(0) - 1);
-			int startingJ = Math.Max(box.Top / TILE_SIZE, 0);
-			int endingJ = Math.Min((box.Bottom - 1) / TILE_SIZE, Tiles.GetLength(1) - 1);
-			for (int i = startingI; i <= endingI; i++)
+			foreach (Box box in GetProbableCollisions(mainBox))
 			{
-				for (int j = startingJ; j <= endingJ; j++)
+				if (box.Solid)
 				{
-					yield return Tiles[i, j];
+					yield return box;
 				}
 			}
 		}
 
-		public IEnumerable<AxisAlignedBoundingBox> GetProbableCollisions(AxisAlignedBoundingBox axisAlignedBoundingBox)
+		public IEnumerable<Box> GetProbableCollisions(Box mainBox)
 		{
-			HashSet<AxisAlignedBoundingBox> boxes = new HashSet<AxisAlignedBoundingBox>();
+			HashSet<Box> boxes = new HashSet<Box>();
 
-			foreach (List<AxisAlignedBoundingBox> tiles in GetProbableCollisionTiles(axisAlignedBoundingBox))
+			foreach (List<Box> tiles in GetCollisionTiles(mainBox))
 			{
-				foreach (AxisAlignedBoundingBox box in tiles)
+				foreach (Box box in tiles)
 				{
 					if (!boxes.Contains(box))
 					{
@@ -80,6 +76,21 @@ namespace MonoGameClassLibrary.Physics
 			return boxes;
 		}
 
+		protected IEnumerable<List<Box>> GetCollisionTiles(Box box)
+		{
+			int startingI = Math.Max((box.Left - 1) / TILE_SIZE, 0);
+			int endingI = Math.Min(box.Right / TILE_SIZE, Tiles.GetLength(0) - 1);
+			int startingJ = Math.Max((box.Top - 1) / TILE_SIZE, 0);
+			int endingJ = Math.Min(box.Bottom / TILE_SIZE, Tiles.GetLength(1) - 1);
+			for (int i = startingI; i <= endingI; i++)
+			{
+				for (int j = startingJ; j <= endingJ; j++)
+				{
+					yield return Tiles[i, j];
+				}
+			}
+		}
+
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
 			Rectangle rectangle = new Rectangle(0, 0, TILE_SIZE, TILE_SIZE);
@@ -89,8 +100,8 @@ namespace MonoGameClassLibrary.Physics
 
 			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, 0, Width, 1), Color.Blue);
 			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, 0, 1, Height), Color.Blue);
-			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, Height, Width, 1), Color.Blue);
-			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(Width, 0, 1, Height), Color.Blue);
+			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, Height - 1, Width, 1), Color.Blue);
+			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(Width - 1, 0, 1, Height), Color.Blue);
 
 			for (int i = 0; i < Tiles.GetLength(0); i++)
 			{

@@ -30,9 +30,9 @@ namespace MonoGameDemo
 
 			Texture2D PlayerTexture = Content.Load<Texture2D>("playerSheet");
 			AnimationSheet animationSheet = AnimationSheetFactory(PlayerTexture);
-			player1 = new Character(animationSheet, new Box(new Rectangle(128, 128, 64, 64)));
+			player1 = new Character(animationSheet, new Rectangle(128, 128, 64, 64));
 			animationSheet = AnimationSheetFactory(PlayerTexture);
-			player2 = new Character(animationSheet, new Box(new Rectangle(256, 128, 64, 64)));
+			player2 = new Character(animationSheet, new Rectangle(256, 128, 64, 64));
 
 			EntityManager.AddDrawable(player1);
 			EntityManager.AddDrawable(player2);
@@ -43,6 +43,14 @@ namespace MonoGameDemo
 		private void constructLevel()
 		{
 			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 1000, 20));
+			PhysicsEngine.Add(plateform.box);
+			EntityManager.AddDrawable(plateform);
+
+			plateform = new DebugPlatform(new Rectangle(0, 0, 20, 1000));
+			PhysicsEngine.Add(plateform.box);
+			EntityManager.AddDrawable(plateform);
+
+			plateform = new DebugPlatform(new Rectangle(500, 916, 500, 20));
 			PhysicsEngine.Add(plateform.box);
 			EntityManager.AddDrawable(plateform);
 		}
