@@ -94,9 +94,8 @@ namespace MonoGameClassLibrary.Physics
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
 			Rectangle rectangle = new Rectangle(0, 0, TILE_SIZE, TILE_SIZE);
-			const float alpha = 0.5f;
-			Color red = new Color(Color.Red, alpha);
-			Color green = new Color(Color.Green, alpha);
+			Color red = new Color(Color.Red, 0.5f);
+			Color green = new Color(Color.Green, 0.5f);
 
 			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, 0, Width, 1), Color.Blue);
 			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, 0, 1, Height), Color.Blue);

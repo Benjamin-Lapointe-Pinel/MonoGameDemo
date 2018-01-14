@@ -21,8 +21,7 @@ namespace MonoGameDemo
 		{
 			base.LoadContent();
 
-			Sprite background = new Sprite(DrawHelper.Pixel);
-			background.Color = Color.CornflowerBlue;
+			Sprite background = new Sprite(Content.Load<Texture2D>("background"));
 			background.DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.spatialGrid.Width, PhysicsEngine.spatialGrid.Height);
 			EntityManager.AddDrawable(background);
 
@@ -34,15 +33,15 @@ namespace MonoGameDemo
 			animationSheet = AnimationSheetFactory(PlayerTexture);
 			player2 = new Character(animationSheet, new Rectangle(256, 128, 64, 64));
 
-			EntityManager.AddDrawable(player1);
-			EntityManager.AddDrawable(player2);
 			PhysicsEngine.Add(player1.BoundingBox);
 			PhysicsEngine.Add(player2.BoundingBox);
+			EntityManager.AddDrawable(player1);
+			EntityManager.AddDrawable(player2);
 		}
 
 		private void constructLevel()
 		{
-			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 1000, 20));
+			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 10000, 20));
 			PhysicsEngine.Add(plateform.box);
 			EntityManager.AddDrawable(plateform);
 

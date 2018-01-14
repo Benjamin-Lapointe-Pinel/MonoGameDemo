@@ -54,7 +54,7 @@ namespace MonoGameClassLibrary
 			GraphicsDevice.Clear(Color.Transparent);
 			SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.Transform);
 			EntityManager.Draw(gameTime);
-#if DEBUG
+#if DEBUG && PHYSIC_DEBUG
 			PhysicsEngine.Draw(SpriteBatch, gameTime);
 #endif
 			SpriteBatch.End();
