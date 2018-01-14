@@ -64,32 +64,30 @@ namespace MonoGameClassLibrary.Physics
 
 				if (box.AffectedByGravity)
 				{
-					gravity(gameTime, box);
+					float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
+					box.Speed += Gravity * totalSeconds;
 				}
 
-				int steps = 1;
-				GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
-				if (box.Speed.Length() > SpatialGrid.TILE_SIZE)
+				if (box.Speed != Vector2.Zero)
 				{
-					//Tunneling resolution
-					steps = (int)Math.Ceiling(box.Speed.Length() / SpatialGrid.TILE_SIZE);
-					relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
-				}
-				for (int i = 0; i < steps; i++)
-				{
-					box.Update(relativeGameTime);
+					int steps = 1;
+					GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
+					if (box.Speed.Length() > SpatialGrid.TILE_SIZE)
+					{
+						//Tunneling resolution
+						steps = (int)Math.Ceiling(box.Speed.Length() / SpatialGrid.TILE_SIZE);
+						relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
+					}
+					for (int i = 0; i < steps; i++)
+					{
+						box.Update(relativeGameTime);
 
-					CollisionHelper.PhysicalCollisions(relativeGameTime, box, spatialGrid);
+						CollisionHelper.PhysicalCollisions(relativeGameTime, box, spatialGrid);
+					}
 				}
 
 				spatialGrid.AddAxisAlignedBoundingBox(box);
 			}
-		}
-
-		private void gravity(GameTime gameTime, Box box)
-		{
-			float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			box.Speed += Gravity * totalSeconds;
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)

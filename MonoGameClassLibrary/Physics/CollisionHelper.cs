@@ -92,7 +92,7 @@ namespace MonoGameClassLibrary.Physics
 					box.Speed.Y = 0;
 				}
 
-				box.Update(gameTime); //Pas parfait du tout
+				box.Update(gameTime);
 
 				//New collision possible
 				if (!box.Speed.Equals(Vector2.Zero))
