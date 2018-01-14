@@ -1,83 +1,110 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameClassLibrary;
+using MonoGameClassLibrary.Animation;
+using MonoGameClassLibrary.Physics;
+using System;
 
 namespace MonoGameDemo
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
-    public class Game1 : Game
-    {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        
-        public Game1()
-        {
-            graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
-        }
+	public class Game1 : MainGame
+	{
+		Character player1;
+		Character player2;
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
-        protected override void Initialize()
-        {
-            // TODO: Add your initialization logic here
+		public Game1()
+		{
+		}
 
-            base.Initialize();
-        }
+		protected override void LoadContent()
+		{
+			base.LoadContent();
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
-        protected override void LoadContent()
-        {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+			Sprite background = new Sprite(DrawHelper.Pixel);
+			background.Color = Color.CornflowerBlue;
+			background.DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.spatialGrid.Width, PhysicsEngine.spatialGrid.Height);
+			EntityManager.AddDrawable(background);
 
-            // TODO: use this.Content to load your game content here
-        }
+			constructLevel();
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
-        protected override void UnloadContent()
-        {
-            // TODO: Unload any non ContentManager content here
-        }
+			Texture2D PlayerTexture = Content.Load<Texture2D>("playerSheet");
+			AnimationSheet animationSheet = AnimationSheetFactory(PlayerTexture);
+			player1 = new Character(animationSheet, new Box(new Rectangle(128, 128, 64, 64)));
+			animationSheet = AnimationSheetFactory(PlayerTexture);
+			player2 = new Character(animationSheet, new Box(new Rectangle(256, 128, 64, 64)));
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
-        {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+			EntityManager.AddDrawable(player1);
+			EntityManager.AddDrawable(player2);
+			PhysicsEngine.Add(player1.BoundingBox);
+			PhysicsEngine.Add(player2.BoundingBox);
+		}
 
-            // TODO: Add your update logic here
+		private void constructLevel()
+		{
+			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 1000, 20));
+			PhysicsEngine.Add(plateform.box);
+			EntityManager.AddDrawable(plateform);
+		}
 
-            base.Update(gameTime);
-        }
+		protected override void Update(GameTime gameTime)
+		{
+			KeyboardState keyboardState = Keyboard.GetState();
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+			if (keyboardState.IsKeyDown(Keys.A))
+			{
+				player1.WalkLeft(gameTime);
+			}
+			if (keyboardState.IsKeyDown(Keys.D))
+			{
+				player1.WalkRight(gameTime);
+			}
+			if (keyboardState.IsKeyDown(Keys.W))
+			{
+				player1.Jump(gameTime);
+			}
 
-            // TODO: Add your drawing code here
+			if (keyboardState.IsKeyDown(Keys.Left))
+			{
+				player2.WalkLeft(gameTime);
+			}
+			if (keyboardState.IsKeyDown(Keys.Right))
+			{
+				player2.WalkRight(gameTime);
+			}
+			if (keyboardState.IsKeyDown(Keys.Up))
+			{
+				player2.Jump(gameTime);
+			}
 
-            base.Draw(gameTime);
-        }
-    }
+			base.Update(gameTime);
+		}
+
+		private AnimationSheet AnimationSheetFactory(Texture2D texture2D)
+		{
+			Cycle[] cycles = new Cycle[4];
+			Frame[] frames = new Frame[1];
+			frames[0] = new Frame(TimeSpan.FromMilliseconds(100));
+			cycles[0] = new Cycle(frames);
+			frames = new Frame[4];
+			frames[0] = new Frame(TimeSpan.FromMilliseconds(100));
+			frames[1] = new Frame(TimeSpan.FromMilliseconds(100));
+			frames[2] = new Frame(TimeSpan.FromMilliseconds(100));
+			frames[3] = new Frame(TimeSpan.FromMilliseconds(100));
+			cycles[1] = new Cycle(frames);
+			frames = new Frame[1];
+			frames[0] = new Frame(TimeSpan.FromMilliseconds(100));
+			cycles[2] = new Cycle(frames);
+			frames = new Frame[1];
+			frames[0] = new Frame(TimeSpan.FromMilliseconds(100));
+			cycles[3] = new Cycle(frames);
+
+			return new AnimationSheet(texture2D, new Rectangle(0, 0, 64, 64), cycles);
+		}
+
+		protected override void CameraWillUpdate()
+		{
+			Camera.Center = player1.BoundingBox.Rectangle.Center;
+		}
+	}
 }

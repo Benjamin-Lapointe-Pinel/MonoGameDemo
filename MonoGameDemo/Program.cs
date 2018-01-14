@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define MONOGAME_DEBUG
+using System;
 
 namespace MonoGameDemo
 {

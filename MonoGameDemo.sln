@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGameDemo", "MonoGameDemo\MonoGameDemo.csproj", "{0936844D-4C57-4B07-9197-B6C6D0A0BBFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGameClassLibrary", "MonoGameClassLibrary\MonoGameClassLibrary.csproj", "{FB524A28-E615-4DF2-82FC-50B04F2F1950}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentPipelineExtension", "ContentPipelineExtension\ContentPipelineExtension.csproj", "{2A418AB5-8345-4904-BB43-02E054B81D37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{0936844D-4C57-4B07-9197-B6C6D0A0BBFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0936844D-4C57-4B07-9197-B6C6D0A0BBFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0936844D-4C57-4B07-9197-B6C6D0A0BBFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB524A28-E615-4DF2-82FC-50B04F2F1950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB524A28-E615-4DF2-82FC-50B04F2F1950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB524A28-E615-4DF2-82FC-50B04F2F1950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB524A28-E615-4DF2-82FC-50B04F2F1950}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A418AB5-8345-4904-BB43-02E054B81D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A418AB5-8345-4904-BB43-02E054B81D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A418AB5-8345-4904-BB43-02E054B81D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A418AB5-8345-4904-BB43-02E054B81D37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
