@@ -12,42 +12,27 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public static void SetCollisionFlag(Box mainBox, SpatialGrid spatialGrid)
 		{
-			mainBox.ClearCollisions();
-			
 			foreach (Box box in spatialGrid.GetProbableCollisions(mainBox))
 			{
-				Box.Side side = Box.Side.None;
-				bool collision = false;
-
 				if (mainBox.Intersects(box))
 				{
-					side |= Box.Side.Unknown;
-					collision = true;
+					mainBox.AddCollision(box, Box.Side.Unknown);
 				}
 				if ((mainBox.Speed.X <= 0) && (LeftCollision(mainBox, box)))
 				{
-					side |= Box.Side.Left;
-					collision = true;
+					mainBox.AddCollision(box, Box.Side.Left);
 				}
 				if ((mainBox.Speed.X >= 0) && (RightCollision(mainBox, box)))
 				{
-					side |= Box.Side.Right;
-					collision = true;
+					mainBox.AddCollision(box, Box.Side.Right);
 				}
 				if ((mainBox.Speed.Y <= 0) && (TopCollision(mainBox, box)))
 				{
-					side |= Box.Side.Top;
-					collision = true;
+					mainBox.AddCollision(box, Box.Side.Top);
 				}
 				if ((mainBox.Speed.Y >= 0) && (BottomCollision(mainBox, box)))
 				{
-					side |= Box.Side.Bottom;
-					collision = true;
-				}
-
-				if (collision)
-				{
-					mainBox.AddCollision(box, side);
+					mainBox.AddCollision(box, Box.Side.Bottom);
 				}
 			}
 		}
