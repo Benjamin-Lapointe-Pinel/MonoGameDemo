@@ -10,7 +10,8 @@ namespace MonoGameClassLibrary.Physics
 {
 	public class SpatialGrid : EntityManager.Drawable
 	{
-		public static readonly int TILE_SIZE = 32;
+		public static readonly int TILE_SIZE = 128;
+
 		public List<Box>[,] Tiles { get; protected set; }
 		public int TilesWidth { get { return Tiles.GetLength(0); } }
 		public int TilesHeight { get { return Tiles.GetLength(1); } }
@@ -93,14 +94,11 @@ namespace MonoGameClassLibrary.Physics
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			Rectangle rectangle = new Rectangle(0, 0, TILE_SIZE, TILE_SIZE);
-			Color red = new Color(Color.Red, 0.5f);
-			Color green = new Color(Color.Green, 0.5f);
+			DrawHelper.DrawOutline(spriteBatch, new Rectangle(0, 0, Width, Height), Color.Blue);
 
-			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, 0, Width, 1), Color.Blue);
-			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, 0, 1, Height), Color.Blue);
-			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(0, Height - 1, Width, 1), Color.Blue);
-			spriteBatch.Draw(DrawHelper.Pixel, new Rectangle(Width - 1, 0, 1, Height), Color.Blue);
+			Rectangle rectangle = new Rectangle(0, 0, TILE_SIZE, TILE_SIZE);
+			Color red = new Color(Color.Red, 0.25f);
+			Color blue = new Color(Color.Blue, 0.25f);
 
 			for (int i = 0; i < Tiles.GetLength(0); i++)
 			{
@@ -110,11 +108,11 @@ namespace MonoGameClassLibrary.Physics
 					rectangle.Y = j * TILE_SIZE;
 					if (Tiles[i, j].Count == 1)
 					{
-						spriteBatch.Draw(DrawHelper.Pixel, rectangle, green);
+						DrawHelper.DrawOutline(spriteBatch, rectangle, blue);
 					}
 					else if (Tiles[i, j].Count > 1)
 					{
-						spriteBatch.Draw(DrawHelper.Pixel, rectangle, red);
+						DrawHelper.DrawOutline(spriteBatch, rectangle, red);
 					}
 				}
 			}

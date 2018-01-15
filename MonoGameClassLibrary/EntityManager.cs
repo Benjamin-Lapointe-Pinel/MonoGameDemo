@@ -48,7 +48,7 @@ namespace MonoGameClassLibrary
 		{
 			foreach (Updatable updatable in Updatables.Values)
 			{
-				updatable.Update(gameTime);
+				updatable.EntityUpdate(gameTime);
 			}
 		}
 
@@ -71,7 +71,7 @@ namespace MonoGameClassLibrary
 		{
 			public int UpdateOrder;
 
-			public virtual void Update(GameTime gameTime) { }
+			public virtual void EntityUpdate(GameTime gameTime) { }
 		}
 	}
 

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public partial class Box : PhysicsEngine.Updatable
+	public partial class Box : EntityManager.Drawable
 	{
 		[Flags]
 		public enum Side
@@ -36,40 +36,46 @@ namespace MonoGameClassLibrary.Physics
 
 		public delegate void CollisionHandler(Box sender, CollisionEventArgs e);
 		public event CollisionHandler OnCollision;
-
-		public object Owner { get; protected set; }
+		
 		public Dictionary<Box, Side> Collisions { get; protected set; }
+
+		public Vector2 Acceleration;
+		public Vector2 Speed;
+		protected Vector2 Vector2Location;//ASDFGHGGSDVDFGD
 
 		public bool Solid { get; set; }
 		public bool InteractWithSolid { get; set; }
-		public bool AffectedByGravity { get; set; }
 
-		public Vector2 Speed;
-		protected Vector2 Vector2Location;
-
-		public Box(object owner, Rectangle rectangle, bool solid = false, bool interactWithSolid = false, bool affectedByGravity = false)
+		public Box(Rectangle rectangle, bool solid = false, bool interactWithSolid = false)
 		{
-			this.Owner = owner;
 			this.Rectangle = rectangle;
 			this.Solid = solid;
 			this.InteractWithSolid = interactWithSolid;
-			this.AffectedByGravity = affectedByGravity;
 
 			Collisions = new Dictionary<Box, Side>();
-			Vector2Location = Location.ToVector2();
+
+			Acceleration = new Vector2(0, 0);
 			Speed = new Vector2(0, 0);
+			Vector2Location = Location.ToVector2();
 		}
 
 		public Box(Box box)
-			: this(box.Owner, box.Rectangle, box.Solid, box.InteractWithSolid, box.AffectedByGravity)
+			: this(box.Rectangle, box.Solid, box.InteractWithSolid)
 		{
 		}
 
-		public override void Update(GameTime gameTime)
+		public virtual void PhysicsUpdate(GameTime gameTime) { }
+
+		public void UpdateLocation(GameTime gameTime)
 		{
 			Vector2Location += Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 			rectangle.X = (int)Math.Round(Vector2Location.X, 0);
 			rectangle.Y = (int)Math.Round(Vector2Location.Y, 0);
+		}
+
+		public void UpdateSpeed(GameTime gameTime)
+		{
+			Speed += Acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds;
 		}
 
 		public void ClearCollisions()
@@ -88,6 +94,98 @@ namespace MonoGameClassLibrary.Physics
 				Collisions.Add(box, side);
 			}
 			OnCollision?.Invoke(this, new CollisionEventArgs(box, side));
+		}
+
+		public bool SolidLeftCollision()
+		{
+			foreach (var collisions in LeftCollision())
+			{
+				if (collisions.Solid)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public bool SolidRightCollision()
+		{
+			foreach (var collisions in RightCollision())
+			{
+				if (collisions.Solid)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public bool SolidTopCollision()
+		{
+			foreach (var collisions in TopCollision())
+			{
+				if (collisions.Solid)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public bool SolidBottomCollision()
+		{
+			foreach (var collisions in BottomCollision())
+			{
+				if (collisions.Solid)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public IEnumerable<Box> LeftCollision()
+		{
+			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
+			{
+				if (collisions.Value.HasFlag(Box.Side.Left))
+				{
+					yield return collisions.Key;
+				}
+			}
+		}
+
+		public IEnumerable<Box> RightCollision()
+		{
+			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
+			{
+				if (collisions.Value.HasFlag(Box.Side.Right))
+				{
+					yield return collisions.Key;
+				}
+			}
+		}
+
+		public IEnumerable<Box> TopCollision()
+		{
+			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
+			{
+				if (collisions.Value.HasFlag(Box.Side.Top))
+				{
+					yield return collisions.Key;
+				}
+			}
+		}
+
+		public IEnumerable<Box> BottomCollision()
+		{
+			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
+			{
+				if (collisions.Value.HasFlag(Box.Side.Bottom))
+				{
+					yield return collisions.Key;
+				}
+			}
 		}
 	}
 }

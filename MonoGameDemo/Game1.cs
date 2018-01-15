@@ -15,14 +15,17 @@ namespace MonoGameDemo
 
 		public Game1()
 		{
+			CameraWillUpdate += Game_CameraWillUpdate;
+			HasDrawn += Game_HasDrawn;
 		}
 
 		protected override void LoadContent()
 		{
 			base.LoadContent();
 
-			Sprite background = new Sprite(Content.Load<Texture2D>("background"));
-			background.DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.spatialGrid.Width, PhysicsEngine.spatialGrid.Height);
+			Sprite background = new Sprite(DrawHelper.Pixel);
+			background.Color = Color.CornflowerBlue;
+			background.DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.Width, PhysicsEngine.Height);
 			EntityManager.AddDrawable(background);
 
 			constructLevel();
@@ -33,25 +36,51 @@ namespace MonoGameDemo
 			animationSheet = AnimationSheetFactory(PlayerTexture);
 			player2 = new Character(animationSheet, new Rectangle(256, 128, 64, 64));
 
-			PhysicsEngine.Add(player1.BoundingBox);
-			PhysicsEngine.Add(player2.BoundingBox);
+			PhysicsEngine.Add(player1);
+			PhysicsEngine.Add(player2);
 			EntityManager.AddDrawable(player1);
 			EntityManager.AddDrawable(player2);
+
+			//Test de performance
+			for (int i = 0; i < 64; i++)
+			{
+				//Character character = new Character(animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
+				//PhysicsEngine.Add(character);
+				//EntityManager.AddDrawable(character);
+			}
 		}
 
 		private void constructLevel()
 		{
-			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 10000, 20));
-			PhysicsEngine.Add(plateform.box);
+			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 10000, 20), Color.SandyBrown);
+			PhysicsEngine.Add(plateform);
 			EntityManager.AddDrawable(plateform);
 
-			plateform = new DebugPlatform(new Rectangle(0, 0, 20, 1000));
-			PhysicsEngine.Add(plateform.box);
+			plateform = new DebugPlatform(new Rectangle(0, 0, 20, 1000), Color.SandyBrown);
+			PhysicsEngine.Add(plateform);
 			EntityManager.AddDrawable(plateform);
 
-			plateform = new DebugPlatform(new Rectangle(500, 916, 500, 20));
-			PhysicsEngine.Add(plateform.box);
+			plateform = new DebugPlatform(new Rectangle(500, 800, 20, 136), Color.SandyBrown);
+			PhysicsEngine.Add(plateform);
 			EntityManager.AddDrawable(plateform);
+
+			plateform = new DebugPlatform(new Rectangle(500, 800, 100, 20), Color.SandyBrown);
+			PhysicsEngine.Add(plateform);
+			EntityManager.AddDrawable(plateform);
+
+			int i = 0;
+			for (; i < 5; i++)
+			{
+				plateform = new DebugPlatform(new Rectangle(600 + (i * (63 + 20)), 800, 20, 20), Color.Magenta);
+				PhysicsEngine.Add(plateform);
+				EntityManager.AddDrawable(plateform);
+			}
+			for (; i < 10; i++)
+			{
+				plateform = new DebugPlatform(new Rectangle(600 + (i * (64 + 20)), 800, 20, 20), Color.Green);
+				PhysicsEngine.Add(plateform);
+				EntityManager.AddDrawable(plateform);
+			}
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -60,28 +89,28 @@ namespace MonoGameDemo
 
 			if (keyboardState.IsKeyDown(Keys.A))
 			{
-				player1.WalkLeft(gameTime);
+				player1.WalkLeft();
 			}
 			if (keyboardState.IsKeyDown(Keys.D))
 			{
-				player1.WalkRight(gameTime);
+				player1.WalkRight();
 			}
 			if (keyboardState.IsKeyDown(Keys.W))
 			{
-				player1.Jump(gameTime);
+				player1.Jump();
 			}
 
 			if (keyboardState.IsKeyDown(Keys.Left))
 			{
-				player2.WalkLeft(gameTime);
+				player2.WalkLeft();
 			}
 			if (keyboardState.IsKeyDown(Keys.Right))
 			{
-				player2.WalkRight(gameTime);
+				player2.WalkRight();
 			}
 			if (keyboardState.IsKeyDown(Keys.Up))
 			{
-				player2.Jump(gameTime);
+				player2.Jump();
 			}
 
 			base.Update(gameTime);
@@ -109,9 +138,17 @@ namespace MonoGameDemo
 			return new AnimationSheet(texture2D, new Rectangle(0, 0, 64, 64), cycles);
 		}
 
-		protected override void CameraWillUpdate()
+		private void Game_CameraWillUpdate(MainGame sender, GameTime gameTime)
 		{
-			Camera.Center = player1.BoundingBox.Rectangle.Center;
+			Camera.Center = player1.Center;
+		}
+
+		private void Game_HasDrawn(MainGame sender, GameTime gameTime)
+		{
+#if DEBUG
+			int fps = (int)(1 / gameTime.ElapsedGameTime.TotalSeconds);
+			DrawHelper.DrawDebugText(fps.ToString(), new Vector2(0, 0), Color.Black);
+#endif
 		}
 	}
 }

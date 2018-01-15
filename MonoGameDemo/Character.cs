@@ -12,34 +12,55 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public partial class Character : EntityManager.Drawable
+	public partial class Character : Box
 	{
-		public Box BoundingBox { get; protected set; }
 		protected AnimationSheet animationSheet;
-		protected Vector2 Acceleration;
-		protected Vector2 MaxSpeed;
 
-		public Character(AnimationSheet animationSheet, Rectangle boundingBox)
+		protected float RunningAcceleration;
+		protected float JumpingSpeed;
+		protected float MaxRunningSpeed;
+
+		public Character(AnimationSheet animationSheet, Rectangle rectangle)
+			: base(rectangle, false, true)
 		{
 			this.animationSheet = animationSheet;
-			this.BoundingBox = new Box(this, boundingBox, false, true, true);
 
-			MaxSpeed = new Vector2(800, 0);
-			Acceleration = new Vector2(MaxSpeed.X * 8, 1600);
+			Acceleration.Y = 6000;
+
+			MaxRunningSpeed = 800;
+			RunningAcceleration = MaxRunningSpeed * 8;
+			JumpingSpeed = 1750;
 		}
 
-		public override void Update(GameTime gameTime)
+		public override void PhysicsUpdate(GameTime gameTime)
 		{
-			inertia(gameTime);
+			float slowing = RunningAcceleration * 0.75f;
+			float movement = slowing * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+			if (Speed.X > movement)
+			{
+				Acceleration.X = -slowing;
+			}
+			else if (Speed.X < -movement)
+			{
+				Acceleration.X = slowing;
+			}
+			else
+			{
+				Speed.X = 0;
+				Acceleration.X = 0;
+			}
+
+			Speed.X = MathHelper.Clamp(Speed.X, -MaxRunningSpeed, MaxRunningSpeed);
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			if (!IsStanding())
+			if (!SolidBottomCollision())
 			{
 				animationSheet.CycleIndex = 2;
 			}
-			else if (BoundingBox.Speed.X != 0)
+			else if (Speed.X != 0)
 			{
 				animationSheet.CycleIndex = 1;
 			}
@@ -48,96 +69,37 @@ namespace MonoGameDemo
 				animationSheet.CycleIndex = 0;
 			}
 
-			animationSheet.Update(gameTime);
+			animationSheet.EntityUpdate(gameTime);
 
-			animationSheet.DestinationRectangle = BoundingBox.Rectangle;
+			animationSheet.DestinationRectangle = Rectangle;
 			animationSheet.Draw(spriteBatch, gameTime);
 		}
 
-		public void WalkLeft(GameTime gameTime)
+		public void WalkLeft()
 		{
-			float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			float movement = Acceleration.X * totalSeconds;
+			Acceleration.X = -RunningAcceleration;
 
-			BoundingBox.Speed.X -= movement;
 			animationSheet.SpriteEffects = SpriteEffects.FlipHorizontally;
 		}
 
-		public void WalkRight(GameTime gameTime)
+		public void WalkRight()
 		{
-			float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			float movement = Acceleration.X * totalSeconds;
+			Acceleration.X = RunningAcceleration;
 
-			BoundingBox.Speed.X += movement;
 			animationSheet.SpriteEffects = SpriteEffects.None;
-		}
-
-		protected bool IsStanding()
-		{
-			foreach (KeyValuePair<Box, Box.Side> collisions in BoundingBox.Collisions)
-			{
-				if (collisions.Key.Solid)
-				{
-					if (collisions.Value.HasFlag(Box.Side.Bottom))
-					{
-						return true;
-					}
-				}
-			}
-
-			return false;
 		}
 
 		protected bool CanJump()
 		{
-			if (IsStanding())
-			{
-				foreach (KeyValuePair<Box, Box.Side> collisions in BoundingBox.Collisions)
-				{
-					if (collisions.Key.Solid)
-					{
-						if (collisions.Value.HasFlag(Box.Side.Top))
-						{
-							return false;
-						}
-
-					}
-				}
-				return true;
-			}
-			return false;
+			return SolidBottomCollision() && !SolidTopCollision();
 		}
 
-		public void Jump(GameTime gameTime)
+		public void Jump()
 		{
 			if (CanJump())
 			{
-				BoundingBox.Speed.Y -= Acceleration.Y;
+				Speed.Y = -JumpingSpeed;
 			}
-		}
-
-		private void inertia(GameTime gameTime)
-		{
-			float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-			float movement = Acceleration.X * totalSeconds;
-			movement *= 0.75f;
-			if ((BoundingBox.Speed.X > movement) || (BoundingBox.Speed.X < -movement))
-			{
-				if (BoundingBox.Speed.X > 0)
-				{
-					BoundingBox.Speed.X -= movement;
-				}
-				else if (BoundingBox.Speed.X < 0)
-				{
-					BoundingBox.Speed.X += movement;
-				}
-			}
-			else
-			{
-				BoundingBox.Speed.X = 0;
-			}
-
-			BoundingBox.Speed.X = MathHelper.Clamp(BoundingBox.Speed.X, -MaxSpeed.X, MaxSpeed.X);
 		}
 	}
 }

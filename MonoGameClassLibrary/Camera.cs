@@ -23,7 +23,7 @@ namespace MonoGameClassLibrary
 			Zoom = 1;
 		}
 
-		public override void Update(GameTime gameTime)
+		public override void EntityUpdate(GameTime gameTime)
 		{
 			Transform = Matrix.CreateTranslation(-Center.X, -Center.Y, 0);
 			Transform *= Matrix.CreateScale(Zoom);

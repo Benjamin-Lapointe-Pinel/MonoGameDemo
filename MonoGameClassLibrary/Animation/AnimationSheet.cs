@@ -37,7 +37,7 @@ namespace MonoGameClassLibrary.Animation
 			CycleIndex = cycleIndex;
 		}
 
-		public override void Update(GameTime gameTime)
+		public override void EntityUpdate(GameTime gameTime)
 		{
 			CurrentCycle.Update(gameTime);
 

@@ -9,18 +9,19 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public class DebugPlatform : EntityManager.Drawable
+	public class DebugPlatform : Box
 	{
-		public Box box { get; protected set; }
+		public Color Color { get; protected set; }
 
-		public DebugPlatform(Rectangle rectangle)
+		public DebugPlatform(Rectangle rectangle, Color color)
+			: base(rectangle, true)
 		{
-			this.box = new Box(this, rectangle, true);
+			this.Color = color;
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			spriteBatch.Draw(DrawHelper.Pixel, box.Rectangle, Color.Magenta);
+			DrawHelper.DrawRectangle(spriteBatch, Rectangle, Color);
 		}
 	}
 }

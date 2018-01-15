@@ -52,7 +52,7 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public static void PhysicalCollisions(GameTime gameTime, Box box, SpatialGrid spatialGrid)
+		public static bool PhysicalCollisions(GameTime gameTime, Box box, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
 			if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
@@ -67,39 +67,48 @@ namespace MonoGameClassLibrary.Physics
 					{
 						//Défait le mouvement qui créer la collion
 						box.Speed = Vector2.Negate(box.Speed);
-						box.Update(gameTime);
+						box.UpdateLocation(gameTime);
 						box.Speed = Vector2.Negate(box.Speed);
 					}
 					else
 					{
 						//Avance plus lentement vers la collion
 						box.Speed /= 2;
-						box.Update(gameTime);
+						box.UpdateLocation(gameTime);
 					}
 				}
 
-				//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
-				IEnumerable<Box> solids = spatialGrid.GetProbableSolidCollisions(box);
 				box.Speed = oldSpeed;
-				if (((box.Speed.X < 0) && (LeftCollision(box, solids))) ||
-					((box.Speed.X > 0) && ((RightCollision(box, solids)))))
-				{
-					box.Speed.X = 0;
-				}
-				if (((box.Speed.Y < 0) && (TopCollision(box, solids))) ||
-					((box.Speed.Y > 0) && (BottomCollision(box, solids))))
-				{
-					box.Speed.Y = 0;
-				}
-
-				box.Update(gameTime);
+				StopSpeed(box, spatialGrid);
+				box.UpdateLocation(gameTime);
+				box.Speed = oldSpeed;
 
 				//New collision possible
-				if (!box.Speed.Equals(Vector2.Zero))
+				if (box.Speed != Vector2.Zero)
 				{
 					//Resolve new movement
 					PhysicalCollisions(gameTime, box, spatialGrid);
 				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		public static void StopSpeed(Box box, SpatialGrid spatialGrid)
+		{
+			//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
+			IEnumerable<Box> solids = spatialGrid.GetProbableSolidCollisions(box);
+			if (((box.Speed.X < 0) && (LeftCollision(box, solids))) ||
+				((box.Speed.X > 0) && ((RightCollision(box, solids)))))
+			{
+				box.Speed.X = 0;
+			}
+			if (((box.Speed.Y < 0) && (TopCollision(box, solids))) ||
+				((box.Speed.Y > 0) && (BottomCollision(box, solids))))
+			{
+				box.Speed.Y = 0;
 			}
 		}
 

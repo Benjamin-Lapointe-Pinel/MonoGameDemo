@@ -9,99 +9,137 @@ using static MonoGameClassLibrary.EntityManager;
 
 namespace MonoGameClassLibrary.Physics
 {
-	//TODO: Spatial Grid
 	public class PhysicsEngine : EntityManager.Drawable
 	{
-		public SpatialGrid spatialGrid { get; protected set; }
+		public SpatialGrid SpatialGrid { get; protected set; }
+		public int Width { get { return SpatialGrid.Width; } }
+		public int Height { get { return SpatialGrid.Width; } }
 		protected List<Box> boxes;
-		public Vector2 Gravity;
 
-		public PhysicsEngine()
+		public PhysicsEngine(int width, int height)
 		{
-			spatialGrid = new SpatialGrid(100, 100);
+			SpatialGrid = new SpatialGrid(width / SpatialGrid.TILE_SIZE, height / SpatialGrid.TILE_SIZE);
 			boxes = new List<Box>();
-			Gravity = new Vector2(0, 5000);
-
 			DrawOrder = int.MaxValue;
 		}
 
 		public void Add(Box box)
 		{
 			boxes.Add(box);
-			spatialGrid.AddAxisAlignedBoundingBox(box);
+			SpatialGrid.AddAxisAlignedBoundingBox(box);
 		}
 
 		public void Remove(Box box)
 		{
 			boxes.Remove(box);
-			spatialGrid.RemoveAxisAlignedBoundingBox(box);
-		}
-		
-		public override void Update(GameTime gameTime)
-		{
-			ApplyPhysics(gameTime);
-			ApplyCollisions();
+			SpatialGrid.RemoveAxisAlignedBoundingBox(box);
 		}
 
-		public void ApplyCollisions()
+		public override void EntityUpdate(GameTime gameTime)
 		{
+			IEnumerable<Box> acceleratingBox;
+			acceleratingBox = ApplyMovement(gameTime);
+
+			IEnumerable<Box> movingBox;
+			movingBox = ApplyPhysics(gameTime, acceleratingBox);
+
+			ApplyCollisions(movingBox);
+		}
+
+		public void ApplyCollisions(IEnumerable<Box> movingBox)
+		{
+			foreach (Box box in movingBox)
+			{
+				SpatialGrid.RemoveAxisAlignedBoundingBox(box);
+
+				CollisionHelper.SetCollisionFlag(box, SpatialGrid);
+
+				SpatialGrid.AddAxisAlignedBoundingBox(box);
+			}
+		}
+
+		private IEnumerable<Box> ApplyMovement(GameTime gameTime)
+		{
+			List<Box> acceleratingBox = new List<Box>();
+
 			foreach (Box box in boxes)
 			{
-				spatialGrid.RemoveAxisAlignedBoundingBox(box);
-
-				CollisionHelper.SetCollisionFlag(box, spatialGrid);
-
-				spatialGrid.AddAxisAlignedBoundingBox(box);
+				if (box.Acceleration != Vector2.Zero)
+				{
+					box.UpdateSpeed(gameTime);
+					acceleratingBox.Add(box);
+				}
+				box.PhysicsUpdate(gameTime);
 			}
+
+			return acceleratingBox;
 		}
 
 		//BUG : résolution de collision de deux objets qui bougent, pas précis
-		private void ApplyPhysics(GameTime gameTime)
+		private IEnumerable<Box> ApplyPhysics(GameTime gameTime, IEnumerable<Box> acceleratingBox)
 		{
-			foreach (Box box in boxes)
-			{
-				spatialGrid.RemoveAxisAlignedBoundingBox(box);
+			List<Box> movingBox = new List<Box>();
 
-				if (box.AffectedByGravity)
-				{
-					float totalSeconds = (float)gameTime.ElapsedGameTime.TotalSeconds;
-					box.Speed += Gravity * totalSeconds;
-				}
+			int collisions = 0;
+			foreach (Box box in acceleratingBox)
+			{
+				SpatialGrid.RemoveAxisAlignedBoundingBox(box);
 
 				if (box.Speed != Vector2.Zero)
 				{
+					movingBox.Add(box);
+
 					int steps = 1;
-					GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
-					if (box.Speed.Length() > SpatialGrid.TILE_SIZE)
+
+					int maxSpeed = SpatialGrid.TILE_SIZE;
+					if (false) //precise collsion... Oui, non? Flag?
 					{
-						//Tunneling resolution
-						steps = (int)Math.Ceiling(box.Speed.Length() / SpatialGrid.TILE_SIZE);
-						relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
+						maxSpeed = Math.Min(box.Width, box.Height);
 					}
+					if (box.Speed.Length() > maxSpeed)
+					{
+						steps = (int)Math.Ceiling(box.Speed.Length() / maxSpeed);
+					}
+
+					GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
+					relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
+
 					for (int i = 0; i < steps; i++)
 					{
-						box.Update(relativeGameTime);
+						box.UpdateLocation(relativeGameTime);
 
-						CollisionHelper.PhysicalCollisions(relativeGameTime, box, spatialGrid);
+						if (box.Speed == Vector2.Zero)
+						{
+							break;
+						}
+						else
+						{
+							collisions++;
+							CollisionHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
+						}
 					}
+					CollisionHelper.StopSpeed(box, SpatialGrid);
 				}
 
-				spatialGrid.AddAxisAlignedBoundingBox(box);
+				SpatialGrid.AddAxisAlignedBoundingBox(box);
 			}
+
+			Console.WriteLine("Collisions : " + collisions);
+
+			return movingBox;
 		}
 
 		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
 			foreach (Box box in boxes)
 			{
-				spriteBatch.Draw(DrawHelper.Pixel, box.Rectangle, new Color(Color.Magenta, 0.5f));
-			}
-			spatialGrid.Draw(spriteBatch, gameTime);
-		}
+				Vector2 end = box.Speed;
+				end *= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-		public class Updatable
-		{
-			public virtual void Update(GameTime gameTime) { }
+				DrawHelper.DrawOutline(spriteBatch, box.Rectangle, Color.Black);
+				DrawHelper.DrawLine(spriteBatch, box.Center, box.Center + end.ToPoint(), Color.Red);
+			}
+			SpatialGrid.Draw(spriteBatch, gameTime);
 		}
 	}
 }
