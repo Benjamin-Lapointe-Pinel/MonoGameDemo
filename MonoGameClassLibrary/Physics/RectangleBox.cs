@@ -44,13 +44,13 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		public static void Union(ref Box value1, ref Box value2, out Box result)
-		{			
+		{
 			result = new Box(Rectangle.Union(value1.rectangle, value2.rectangle));
 		}
 
 		public static Box Union(Box value1, Box value2)
 		{
-			return new Box( Rectangle.Union(value1.rectangle, value2.rectangle));
+			return new Box(Rectangle.Union(value1.rectangle, value2.rectangle));
 		}
 
 		public void Contains(ref Box value, out bool result)
@@ -90,11 +90,6 @@ namespace MonoGameClassLibrary.Physics
 		public bool Contains(Box value)
 		{
 			return rectangle.Contains(value.rectangle);
-		}
-
-		public override int GetHashCode()
-		{
-			return rectangle.GetHashCode();
 		}
 
 		public void Inflate(float horizontalAmount, float verticalAmount)

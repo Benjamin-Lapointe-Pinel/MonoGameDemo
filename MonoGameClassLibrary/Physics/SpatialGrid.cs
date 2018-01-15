@@ -32,7 +32,7 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public void AddAxisAlignedBoundingBox(Box axisAlignedBoundingBox)
+		public void AddBox(Box axisAlignedBoundingBox)
 		{
 			foreach (List<Box> boxes in GetCollisionTiles(axisAlignedBoundingBox))
 			{
@@ -40,7 +40,7 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public void RemoveAxisAlignedBoundingBox(Box axisAlignedBoundingBox)
+		public void RemoveBox(Box axisAlignedBoundingBox)
 		{
 			foreach (List<Box> boxes in GetCollisionTiles(axisAlignedBoundingBox))
 			{
@@ -61,7 +61,7 @@ namespace MonoGameClassLibrary.Physics
 
 		public IEnumerable<Box> GetProbableCollisions(Box mainBox)
 		{
-			HashSet<Box> boxes = new HashSet<Box>();
+			List<Box> boxes = new List<Box>();
 
 			foreach (List<Box> tiles in GetCollisionTiles(mainBox))
 			{
@@ -98,7 +98,7 @@ namespace MonoGameClassLibrary.Physics
 
 			Rectangle rectangle = new Rectangle(0, 0, TILE_SIZE, TILE_SIZE);
 			Color red = new Color(Color.Red, 0.25f);
-			Color blue = new Color(Color.Blue, 0.25f);
+			Color blue = new Color(Color.Blue, 0.5f);
 
 			for (int i = 0; i < Tiles.GetLength(0); i++)
 			{

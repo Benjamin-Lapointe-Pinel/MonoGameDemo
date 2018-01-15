@@ -36,7 +36,7 @@ namespace MonoGameClassLibrary.Physics
 
 		public delegate void CollisionHandler(Box sender, CollisionEventArgs e);
 		public event CollisionHandler OnCollision;
-		
+
 		public Dictionary<Box, Side> Collisions { get; protected set; }
 
 		public Vector2 Acceleration;
@@ -45,12 +45,14 @@ namespace MonoGameClassLibrary.Physics
 
 		public bool Solid { get; set; }
 		public bool InteractWithSolid { get; set; }
+		public bool Collisionable { get; set; }
 
-		public Box(Rectangle rectangle, bool solid = false, bool interactWithSolid = false)
+		public Box(Rectangle rectangle, bool solid = false, bool interactWithSolid = false, bool collisionable = false)
 		{
 			this.Rectangle = rectangle;
 			this.Solid = solid;
 			this.InteractWithSolid = interactWithSolid;
+			this.Collisionable = collisionable;
 
 			Collisions = new Dictionary<Box, Side>();
 
@@ -92,8 +94,8 @@ namespace MonoGameClassLibrary.Physics
 			else
 			{
 				Collisions.Add(box, side);
+				OnCollision?.Invoke(this, new CollisionEventArgs(box, side));
 			}
-			OnCollision?.Invoke(this, new CollisionEventArgs(box, side));
 		}
 
 		public bool SolidLeftCollision()

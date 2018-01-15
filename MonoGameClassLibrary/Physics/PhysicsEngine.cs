@@ -26,19 +26,30 @@ namespace MonoGameClassLibrary.Physics
 		public void Add(Box box)
 		{
 			boxes.Add(box);
-			SpatialGrid.AddAxisAlignedBoundingBox(box);
+			SpatialGrid.AddBox(box);
 		}
 
 		public void Remove(Box box)
 		{
 			boxes.Remove(box);
-			SpatialGrid.RemoveAxisAlignedBoundingBox(box);
+			SpatialGrid.RemoveBox(box);
 		}
 
 		public override void EntityUpdate(GameTime gameTime)
 		{
 			IEnumerable<Box> movingBox = ApplyUpdates(gameTime);
 			ApplyPhysics(gameTime, movingBox);
+			ApplyCollisions();
+		}
+
+		public void ApplyCollisions()
+		{
+			foreach (Box box in boxes)
+			{
+				SpatialGrid.RemoveBox(box);
+				PhysicsHelper.SetCollisionFlag(box, SpatialGrid);
+				SpatialGrid.AddBox(box);
+			}
 		}
 
 		private IEnumerable<Box> ApplyUpdates(GameTime gameTime)
@@ -68,7 +79,7 @@ namespace MonoGameClassLibrary.Physics
 			int collisions = 0;
 			foreach (Box box in movingBox)
 			{
-				SpatialGrid.RemoveAxisAlignedBoundingBox(box);
+				SpatialGrid.RemoveBox(box);
 
 				int steps = 1;
 
@@ -85,31 +96,33 @@ namespace MonoGameClassLibrary.Physics
 				GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
 				relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
 
-				bool colllision = false;
+				bool lastStepIsAPhysicalColllision = false;
 				for (int i = 0; i < steps; i++)
 				{
 					box.UpdateLocation(relativeGameTime);
 
+					lastStepIsAPhysicalColllision = false;
 					if (box.Speed == Vector2.Zero)
 					{
 						break;
 					}
-					else
+					else if(PhysicsHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
 					{
-						colllision = CollisionHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
-						if (colllision)
+						if (box.InteractWithSolid)
 						{
-							CollisionHelper.SetCollisionFlag(box, SpatialGrid);
+							PhysicsHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
+							lastStepIsAPhysicalColllision = true;
 						}
+						PhysicsHelper.SetCollisionFlag(box, SpatialGrid);
 					}
 				}
-				if (colllision)
+				if (box.InteractWithSolid && lastStepIsAPhysicalColllision)
 				{
-					CollisionHelper.StopSpeed(box, SpatialGrid);
+					PhysicsHelper.StopSpeed(box, SpatialGrid);
 					collisions++;
 				}
 
-				SpatialGrid.AddAxisAlignedBoundingBox(box);
+				SpatialGrid.AddBox(box);
 			}
 
 			Console.WriteLine("PhysicalCollisions : " + collisions);

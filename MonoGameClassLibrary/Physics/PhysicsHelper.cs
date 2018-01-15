@@ -8,31 +8,34 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public static class CollisionHelper
+	public static class PhysicsHelper
 	{
 		public static void SetCollisionFlag(Box mainBox, SpatialGrid spatialGrid)
 		{
-			foreach (Box box in spatialGrid.GetProbableCollisions(mainBox))
+			if (mainBox.Collisionable)
 			{
-				if (mainBox.Intersects(box))
+				foreach (Box box in spatialGrid.GetProbableCollisions(mainBox))
 				{
-					mainBox.AddCollision(box, Box.Side.Unknown);
-				}
-				if ((mainBox.Speed.X <= 0) && (LeftCollision(mainBox, box)))
-				{
-					mainBox.AddCollision(box, Box.Side.Left);
-				}
-				if ((mainBox.Speed.X >= 0) && (RightCollision(mainBox, box)))
-				{
-					mainBox.AddCollision(box, Box.Side.Right);
-				}
-				if ((mainBox.Speed.Y <= 0) && (TopCollision(mainBox, box)))
-				{
-					mainBox.AddCollision(box, Box.Side.Top);
-				}
-				if ((mainBox.Speed.Y >= 0) && (BottomCollision(mainBox, box)))
-				{
-					mainBox.AddCollision(box, Box.Side.Bottom);
+					if (mainBox.Intersects(box))
+					{
+						mainBox.AddCollision(box, Box.Side.Unknown);
+					}
+					if (LeftCollision(mainBox, box))
+					{
+						mainBox.AddCollision(box, Box.Side.Left);
+					}
+					if (RightCollision(mainBox, box))
+					{
+						mainBox.AddCollision(box, Box.Side.Right);
+					}
+					if (TopCollision(mainBox, box))
+					{
+						mainBox.AddCollision(box, Box.Side.Top);
+					}
+					if (BottomCollision(mainBox, box))
+					{
+						mainBox.AddCollision(box, Box.Side.Bottom);
+					}
 				}
 			}
 		}
@@ -189,7 +192,7 @@ namespace MonoGameClassLibrary.Physics
 			return result;
 		}
 
-		private static bool Intersect(Box box, IEnumerable<Box> axisAlignedBoundingBoxes)
+		public static bool Intersect(Box box, IEnumerable<Box> axisAlignedBoundingBoxes)
 		{
 			foreach (Box axisAlignedBoundingBoxe in axisAlignedBoundingBoxes)
 			{

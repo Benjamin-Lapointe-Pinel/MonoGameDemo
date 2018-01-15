@@ -42,7 +42,7 @@ namespace MonoGameDemo
 			EntityManager.AddDrawable(player2);
 
 			//Test de performance
-			for (int i = 0; i < 64; i++)
+			for (int i = 0; i < 50; i++)
 			{
 				//Character character = new Character(animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
 				//PhysicsEngine.Add(character);
@@ -55,6 +55,8 @@ namespace MonoGameDemo
 			DebugPlatform plateform = new DebugPlatform(new Rectangle(0, 1000, 10000, 20), Color.SandyBrown);
 			PhysicsEngine.Add(plateform);
 			EntityManager.AddDrawable(plateform);
+
+			plateform.OnCollision += Plateform_OnCollision;
 
 			plateform = new DebugPlatform(new Rectangle(0, 0, 20, 1000), Color.SandyBrown);
 			PhysicsEngine.Add(plateform);
@@ -81,6 +83,11 @@ namespace MonoGameDemo
 				PhysicsEngine.Add(plateform);
 				EntityManager.AddDrawable(plateform);
 			}
+		}
+
+		private void Plateform_OnCollision(Box sender, Box.CollisionEventArgs e)
+		{
+			Console.WriteLine("floor");
 		}
 
 		protected override void Update(GameTime gameTime)
