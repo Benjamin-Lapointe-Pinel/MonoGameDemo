@@ -83,8 +83,6 @@ namespace MonoGameDemo
 			{
 				Exit();
 			}
-
-			Console.WriteLine(player1.Speed);
 		}
 
 		protected void constructLevel()
@@ -112,6 +110,22 @@ namespace MonoGameDemo
 				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (64 + 20)), 800, 20, 20), Color.Green);
 				AddComponent(plateform);
 			}
+
+			plateform = new DebugPlatform(MainGame, new Rectangle(1500, 0, 20, 936), Color.SandyBrown);
+			AddComponent(plateform);
+
+			Lever lever = new Lever(MainGame, new Point(1350, 770));
+			lever.OnAction += Lever_OnAction;
+			AddComponent(lever);
+
+			door = new Door(MainGame, new Point(1500, 936));
+			AddComponent(door);
+		}
+
+		Door door;
+		private void Lever_OnAction()
+		{
+			door.Open();
 		}
 
 		private AnimationSheet AnimationSheetFactory(Texture2D texture2D)
