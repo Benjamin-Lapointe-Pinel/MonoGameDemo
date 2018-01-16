@@ -114,18 +114,12 @@ namespace MonoGameDemo
 			plateform = new DebugPlatform(MainGame, new Rectangle(1500, 0, 20, 936), Color.SandyBrown);
 			AddComponent(plateform);
 
-			Lever lever = new Lever(MainGame, new Point(1350, 770));
-			lever.OnAction += Lever_OnAction;
-			AddComponent(lever);
-
-			door = new Door(MainGame, new Point(1500, 936));
+			Door door = new Door(MainGame, new Point(1500, 936));
 			AddComponent(door);
-		}
 
-		Door door;
-		private void Lever_OnAction()
-		{
-			door.Open();
+			Lever lever = new Lever(MainGame, new Point(1350, 770));
+			lever.SwitchedOn += door.Open;
+			AddComponent(lever);
 		}
 
 		private AnimationSheet AnimationSheetFactory(Texture2D texture2D)

@@ -21,7 +21,7 @@ namespace MonoGameDemo
 			sprite.SourceRectangle.Width = 64;
 		}
 
-		public void Open()
+		public void Open(object sender, EventArgs e)
 		{
 			Solid = false;
 			sprite.SourceRectangle.X = 64;
