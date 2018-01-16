@@ -18,7 +18,7 @@ namespace MonoGameDemo
 		Character player2;
 
 		public Scene1(MainGame mainGame)
-			: base(mainGame, new Rectangle(0, 0, 5000, 5000))
+			: base(mainGame, 5000, 5000)
 		{
 			Sprite background = new Sprite(MainGame, DrawHelper.Pixel);
 			background.Color = Color.CornflowerBlue;
@@ -90,32 +90,26 @@ namespace MonoGameDemo
 		protected void constructLevel()
 		{
 			DebugPlatform plateform = new DebugPlatform(MainGame, new Rectangle(0, 1000, 10000, 20), Color.SandyBrown);
-			
 			AddComponent(plateform);
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(0, 0, 20, 1000), Color.SandyBrown);
-			
 			AddComponent(plateform);
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(500, 800, 20, 136), Color.SandyBrown);
-			
 			AddComponent(plateform);
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(500, 800, 100, 20), Color.SandyBrown);
-			
 			AddComponent(plateform);
 
 			int i = 0;
 			for (; i < 5; i++)
 			{
 				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (63 + 20)), 800, 20, 20), Color.Magenta);
-				
 				AddComponent(plateform);
 			}
 			for (; i < 10; i++)
 			{
 				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (64 + 20)), 800, 20, 20), Color.Green);
-				
 				AddComponent(plateform);
 			}
 		}

@@ -14,10 +14,10 @@ namespace MonoGameClassLibrary.Physics
 		public int Width { get { return SpatialGrid.Width; } }
 		public int Height { get { return SpatialGrid.Width; } }
 
-		public PhysicsEngine(Game game, Rectangle rectangle)
+		public PhysicsEngine(Game game, int width, int height)
 			: base(game)
 		{
-			SpatialGrid = new SpatialGrid(Game, rectangle.Width / SpatialGrid.TILE_SIZE, rectangle.Height / SpatialGrid.TILE_SIZE);
+			SpatialGrid = new SpatialGrid(Game, width / SpatialGrid.TILE_SIZE, height / SpatialGrid.TILE_SIZE);
 			DrawOrder = int.MaxValue;
 		}
 

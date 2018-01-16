@@ -17,14 +17,14 @@ namespace MonoGameClassLibrary
 		public Camera Camera { get; protected set; }
 		public PhysicsEngine PhysicsEngine { get; protected set; }
 
-		public Scene(MainGame mainGame, Rectangle rectangle)
+		public Scene(MainGame mainGame, int width, int height)
 		{
 			MainGame = mainGame;
 
 			Components = new SortedList<int, GameComponent>(new DuplicateKeyComparer<int>());
 
 			Camera = new Camera(MainGame);
-			PhysicsEngine = new PhysicsEngine(MainGame, rectangle);
+			PhysicsEngine = new PhysicsEngine(MainGame, width, height);
 		}
 
 		public void AddComponent(GameComponent component)
