@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public class SpatialGrid : EntityManager.Drawable
+	public class SpatialGrid : DrawableGameComponent
 	{
 		public static readonly int TILE_SIZE = 128;
 
@@ -18,7 +18,8 @@ namespace MonoGameClassLibrary.Physics
 		public int Width { get { return Tiles.GetLength(0) * TILE_SIZE; } }
 		public int Height { get { return Tiles.GetLength(1) * TILE_SIZE; } }
 
-		public SpatialGrid(int width, int height)
+		public SpatialGrid(Game game, int width, int height)
+			: base(game)
 		{
 			DrawOrder = int.MaxValue;
 
@@ -92,8 +93,9 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(GameTime gameTime)
 		{
+			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
 			DrawHelper.DrawOutline(spriteBatch, new Rectangle(0, 0, Width, Height), Color.Blue);
 
 			Rectangle rectangle = new Rectangle(0, 0, TILE_SIZE, TILE_SIZE);

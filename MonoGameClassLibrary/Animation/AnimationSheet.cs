@@ -27,8 +27,8 @@ namespace MonoGameClassLibrary.Animation
 		public Cycle CurrentCycle { get { return cycles[CycleIndex]; } }
 		public int FrameIndex { get { return CurrentCycle.FrameIndex; } }
 
-		public AnimationSheet(Texture2D texture2D, Rectangle sourceRectangle, Cycle[] cycles, int cycleIndex = 0)
-			: base(texture2D)
+		public AnimationSheet(Game game, Texture2D texture2D, Rectangle sourceRectangle, Cycle[] cycles, int cycleIndex = 0)
+			: base(game, texture2D)
 		{
 			this.DestinationRectangle = sourceRectangle;
 			this.SourceRectangle = sourceRectangle;
@@ -37,7 +37,7 @@ namespace MonoGameClassLibrary.Animation
 			CycleIndex = cycleIndex;
 		}
 
-		public override void EntityUpdate(GameTime gameTime)
+		public override void Update(GameTime gameTime)
 		{
 			CurrentCycle.Update(gameTime);
 

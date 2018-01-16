@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public partial class Character : Box
+	public partial class Character : CollisionBox
 	{
 		protected AnimationSheet animationSheet;
 
@@ -20,8 +20,8 @@ namespace MonoGameDemo
 		protected float JumpingSpeed;
 		protected float MaxRunningSpeed;
 
-		public Character(AnimationSheet animationSheet, Rectangle rectangle)
-			: base(rectangle, false, true, true)
+		public Character(Game game, AnimationSheet animationSheet, Rectangle rectangle)
+			: base(game, rectangle, false, true)
 		{
 			this.animationSheet = animationSheet;
 
@@ -32,8 +32,10 @@ namespace MonoGameDemo
 			JumpingSpeed = 1750;
 		}
 
-		public override void PhysicsUpdate(GameTime gameTime)
+		public override void Update(GameTime gameTime)
 		{
+			Speed.X = MathHelper.Clamp(Speed.X, -MaxRunningSpeed, MaxRunningSpeed);
+
 			float slowing = RunningAcceleration * 0.75f;
 			float movement = slowing * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -50,12 +52,11 @@ namespace MonoGameDemo
 				Speed.X = 0;
 				Acceleration.X = 0;
 			}
-
-			Speed.X = MathHelper.Clamp(Speed.X, -MaxRunningSpeed, MaxRunningSpeed);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(GameTime gameTime)
 		{
+			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
 			if (!SolidBottomCollision())
 			{
 				animationSheet.CycleIndex = 2;
@@ -69,10 +70,10 @@ namespace MonoGameDemo
 				animationSheet.CycleIndex = 0;
 			}
 
-			animationSheet.EntityUpdate(gameTime);
+			animationSheet.Update(gameTime);
 
 			animationSheet.DestinationRectangle = Rectangle;
-			animationSheet.Draw(spriteBatch, gameTime);
+			animationSheet.Draw(gameTime);
 		}
 
 		public void WalkLeft()

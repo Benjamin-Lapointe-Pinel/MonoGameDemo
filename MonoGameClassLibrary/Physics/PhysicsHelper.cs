@@ -12,30 +12,27 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public static void SetCollisionFlag(Box mainBox, SpatialGrid spatialGrid)
 		{
-			if (mainBox.Collisionable)
+			foreach (Box box in spatialGrid.GetProbableCollisions(mainBox))
 			{
-				foreach (Box box in spatialGrid.GetProbableCollisions(mainBox))
+				if (mainBox.Intersects(box))
 				{
-					if (mainBox.Intersects(box))
-					{
-						mainBox.AddCollision(box, Box.Side.Unknown);
-					}
-					if (LeftCollision(mainBox, box))
-					{
-						mainBox.AddCollision(box, Box.Side.Left);
-					}
-					if (RightCollision(mainBox, box))
-					{
-						mainBox.AddCollision(box, Box.Side.Right);
-					}
-					if (TopCollision(mainBox, box))
-					{
-						mainBox.AddCollision(box, Box.Side.Top);
-					}
-					if (BottomCollision(mainBox, box))
-					{
-						mainBox.AddCollision(box, Box.Side.Bottom);
-					}
+					mainBox.Collided(box, Box.Side.Unknown);
+				}
+				if ((mainBox.Speed.X <= 0) && LeftCollision(mainBox, box))
+				{
+					mainBox.Collided(box, Box.Side.Left);
+				}
+				if ((mainBox.Speed.X >= 0) && RightCollision(mainBox, box))
+				{
+					mainBox.Collided(box, Box.Side.Right);
+				}
+				if ((mainBox.Speed.Y <= 0) && TopCollision(mainBox, box))
+				{
+					mainBox.Collided(box, Box.Side.Top);
+				}
+				if ((mainBox.Speed.Y >= 0) && BottomCollision(mainBox, box))
+				{
+					mainBox.Collided(box, Box.Side.Bottom);
 				}
 			}
 		}

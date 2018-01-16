@@ -13,14 +13,15 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public Color Color { get; protected set; }
 
-		public DebugPlatform(Rectangle rectangle, Color color)
-			: base(rectangle, true)
+		public DebugPlatform(Game game, Rectangle rectangle, Color color)
+			: base(game, rectangle, true)
 		{
 			this.Color = color;
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(GameTime gameTime)
 		{
+			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
 			DrawHelper.DrawRectangle(spriteBatch, Rectangle, Color);
 		}
 	}

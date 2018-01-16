@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary
 {
-	public class Sprite : EntityManager.Drawable
+	public class Sprite : DrawableGameComponent
 	{
 		public static readonly int BACKGROUND = 0;
 		public static readonly int FOREGROUND = int.MaxValue;
 
-		public bool Visible;
 		public Rectangle DestinationRectangle;
 		public Rectangle SourceRectangle;
 		public Color Color;
@@ -22,7 +21,7 @@ namespace MonoGameClassLibrary
 		public SpriteEffects SpriteEffects;
 		protected Texture2D texture2D;
 
-		public Sprite(Texture2D texture2D)
+		public Sprite(Game game, Texture2D texture2D) : base(game)
 		{
 			this.texture2D = texture2D;
 			Visible = true;
@@ -35,10 +34,11 @@ namespace MonoGameClassLibrary
 			DrawOrder = 0;
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(GameTime gameTime)
 		{
 			if (Visible)
 			{
+				SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
 				spriteBatch.Draw(texture2D, DestinationRectangle, SourceRectangle, Color, Rotation, Origin, SpriteEffects, DrawOrder);
 			}
 		}

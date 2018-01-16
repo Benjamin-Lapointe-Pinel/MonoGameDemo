@@ -8,22 +8,49 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary
 {
-	public class Camera : EntityManager.Updatable
+	public class Camera : GameComponent
 	{
-		public Matrix Transform { get; protected set; }
-		public Point Center;
-		public float Zoom;
 		protected Viewport viewport;
-
-		public Camera(Viewport viewport)
+		public Matrix Transform { get; protected set; }
+		public Point center;
+		public Point Center
 		{
-			this.viewport = viewport;
-			
+			get
+			{
+				return center;
+
+			}
+			set
+			{
+				center = value;
+				Update();
+			}
+		}
+		public float zoom;
+		public float Zoom
+		{
+			get
+			{
+				return zoom;
+
+			}
+			set
+			{
+				zoom = value;
+				Update();
+			}
+		}
+
+		public Camera(Game game)
+			: base(game)
+		{
+			this.viewport = Game.GraphicsDevice.Viewport;
+
 			Point Center = new Point(0, 0);
 			Zoom = 1;
 		}
 
-		public override void EntityUpdate(GameTime gameTime)
+		protected void Update()
 		{
 			Transform = Matrix.CreateTranslation(-Center.X, -Center.Y, 0);
 			Transform *= Matrix.CreateScale(Zoom);

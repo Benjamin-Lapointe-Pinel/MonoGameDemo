@@ -11,26 +11,20 @@ namespace MonoGameClassLibrary
 {
 	public class DrawHelper
 	{
-		public static SpriteBatch DebugSpriteBatch { get; private set; }
 		public static Texture2D Pixel { get; private set; }
-		public static SpriteFont spriteFont { get; private set; }
+		public static SpriteFont SpriteFont { get; private set; }
 
 		public static void Init(GraphicsDevice GraphicsDevice, ContentManager Content)
 		{
-			DebugSpriteBatch = new SpriteBatch(GraphicsDevice);
-
 			Pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
 			Pixel.SetData(new[] { Color.White });
 
-			spriteFont = Content.Load<SpriteFont>("default_spritefont");
+			SpriteFont = Content.Load<SpriteFont>("default_spritefont");
 		}
 
-		public static void DrawDebugText(string text, Vector2 position, Color color)
+		public static void DrawText(SpriteBatch spriteBatch, string text, Vector2 position, Color color)
 		{
-			DebugSpriteBatch.Begin();
-			DrawRectangle(DebugSpriteBatch, new Rectangle(0, 0, 400, 100), new Color(Color.Gray, 0.25f));
-			DebugSpriteBatch.DrawString(spriteFont, text, position, color);
-			DebugSpriteBatch.End();
+			spriteBatch.DrawString(SpriteFont, text, position, color);
 		}
 
 		public static void DrawRectangle(SpriteBatch spriteBatch, Rectangle rectangle, Color color)
@@ -53,7 +47,7 @@ namespace MonoGameClassLibrary
 			float angle = (float)Math.Atan2(edge.Y, edge.X);
 			Rectangle line = new Rectangle(start.X, start.Y, (int)edge.Length(), 1);
 
-			spriteBatch.Draw(Pixel, line, null, Color.Red, angle, new Vector2(0, 0), SpriteEffects.None, 0);
+			spriteBatch.Draw(Pixel, line, null, color, angle, new Vector2(0, 0), SpriteEffects.None, 0);
 		}
 	}
 }

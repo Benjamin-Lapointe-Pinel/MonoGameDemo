@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public partial class Box : EntityManager.Drawable
+	public class Box : DrawableGameComponent
 	{
 		[Flags]
 		public enum Side
@@ -21,40 +20,35 @@ namespace MonoGameClassLibrary.Physics
 			Bottom = 16,
 		}
 
-		public class CollisionEventArgs : EventArgs
-		{
-			public Box Box { get; protected set; }
-			public Side CollisionSide { get; protected set; }
+		protected Rectangle rectangle;
+		public Rectangle Rectangle { get { return rectangle; } protected set { rectangle = value; } }
+		public int X { get { return rectangle.X; } set { rectangle.X = value; } }
+		public int Y { get { return rectangle.Y; } set { rectangle.Y = value; } }
+		public int Width { get { return rectangle.Width; } set { rectangle.Width = value; } }
+		public int Height { get { return rectangle.Height; } set { rectangle.Height = value; } }
+		public Point Location { get { return rectangle.Location; } set { rectangle.Location = value; } }
+		public int Bottom { get { return rectangle.Bottom; } }
+		public int Top { get { return rectangle.Top; } }
+		public int Right { get { return rectangle.Right; } }
+		public int Left { get { return rectangle.Left; } }
+		public Point Size { get { return rectangle.Size; } set { rectangle.Size = value; } }
+		public Point Center { get { return rectangle.Center; } }
 
-			public CollisionEventArgs(Box box, Side collisionSide)
-				: base()
-			{
-				this.Box = box;
-				this.CollisionSide = collisionSide;
-			}
-		}
-
-		public delegate void CollisionHandler(Box sender, CollisionEventArgs e);
-		public event CollisionHandler OnCollision;
-
-		public Dictionary<Box, Side> Collisions { get; protected set; }
+		public bool Solid { get; set; }
+		public bool InteractWithSolid { get; set; }
+		public bool PreciseCollision { get; internal set; }
 
 		public Vector2 Acceleration;
 		public Vector2 Speed;
 		protected Vector2 Vector2Location;//ASDFGHGGSDVDFGD
 
-		public bool Solid { get; set; }
-		public bool InteractWithSolid { get; set; }
-		public bool Collisionable { get; set; }
-
-		public Box(Rectangle rectangle, bool solid = false, bool interactWithSolid = false, bool collisionable = false)
+		public Box(Game game, Rectangle rectangle, bool solid = false, bool interactWithSolid = false, bool preciseCollision = false)
+			: base(game)
 		{
 			this.Rectangle = rectangle;
 			this.Solid = solid;
 			this.InteractWithSolid = interactWithSolid;
-			this.Collisionable = collisionable;
-
-			Collisions = new Dictionary<Box, Side>();
+			this.PreciseCollision = preciseCollision;
 
 			Acceleration = new Vector2(0, 0);
 			Speed = new Vector2(0, 0);
@@ -62,11 +56,9 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		public Box(Box box)
-			: this(box.Rectangle, box.Solid, box.InteractWithSolid)
+			: this(box.Game, box.Rectangle, box.Solid, box.InteractWithSolid, box.PreciseCollision)
 		{
 		}
-
-		public virtual void PhysicsUpdate(GameTime gameTime) { }
 
 		public void UpdateLocation(GameTime gameTime)
 		{
@@ -80,114 +72,90 @@ namespace MonoGameClassLibrary.Physics
 			Speed += Acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds;
 		}
 
-		public void ClearCollisions()
+		public virtual void Collided(Box box, Side side = Side.Unknown) { }
+
+		public void Intersects(ref Box value, out bool result)
 		{
-			Collisions.Clear();
+			result = rectangle.Intersects(value.rectangle);
 		}
 
-		public void AddCollision(Box box, Side side = Side.Unknown)
+		public bool Intersects(Box value)
 		{
-			if (Collisions.ContainsKey(box))
-			{
-				Collisions[box] |= side;
-			}
-			else
-			{
-				Collisions.Add(box, side);
-				OnCollision?.Invoke(this, new CollisionEventArgs(box, side));
-			}
+			return rectangle.Intersects(value.rectangle);
 		}
 
-		public bool SolidLeftCollision()
+		public void Contains(ref Box value, out bool result)
 		{
-			foreach (var collisions in LeftCollision())
-			{
-				if (collisions.Solid)
-				{
-					return true;
-				}
-			}
-			return false;
+			rectangle.Contains(ref value.rectangle, out result);
 		}
 
-		public bool SolidRightCollision()
+		public bool Contains(int x, int y)
 		{
-			foreach (var collisions in RightCollision())
-			{
-				if (collisions.Solid)
-				{
-					return true;
-				}
-			}
-			return false;
+			return rectangle.Contains(x, y);
+		}
+		public void Contains(ref Vector2 value, out bool result)
+		{
+			result = rectangle.Contains(value);
 		}
 
-		public bool SolidTopCollision()
+		public bool Contains(float x, float y)
 		{
-			foreach (var collisions in TopCollision())
-			{
-				if (collisions.Solid)
-				{
-					return true;
-				}
-			}
-			return false;
+			return rectangle.Contains(x, y);
 		}
 
-		public bool SolidBottomCollision()
+		public bool Contains(Point value)
 		{
-			foreach (var collisions in BottomCollision())
-			{
-				if (collisions.Solid)
-				{
-					return true;
-				}
-			}
-			return false;
+			return rectangle.Contains(value);
 		}
 
-		public IEnumerable<Box> LeftCollision()
+		public void Contains(ref Point value, out bool result)
 		{
-			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
-			{
-				if (collisions.Value.HasFlag(Box.Side.Left))
-				{
-					yield return collisions.Key;
-				}
-			}
+			result = rectangle.Contains(value);
 		}
 
-		public IEnumerable<Box> RightCollision()
+		public bool Contains(Vector2 value)
 		{
-			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
-			{
-				if (collisions.Value.HasFlag(Box.Side.Right))
-				{
-					yield return collisions.Key;
-				}
-			}
+			return rectangle.Contains(value);
 		}
 
-		public IEnumerable<Box> TopCollision()
+		public bool Contains(Box value)
 		{
-			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
-			{
-				if (collisions.Value.HasFlag(Box.Side.Top))
-				{
-					yield return collisions.Key;
-				}
-			}
+			return rectangle.Contains(value.rectangle);
 		}
 
-		public IEnumerable<Box> BottomCollision()
+		public void Inflate(float horizontalAmount, float verticalAmount)
 		{
-			foreach (KeyValuePair<Box, Box.Side> collisions in Collisions)
-			{
-				if (collisions.Value.HasFlag(Box.Side.Bottom))
-				{
-					yield return collisions.Key;
-				}
-			}
+			rectangle.Inflate(horizontalAmount, verticalAmount);
+		}
+
+		public void Inflate(int horizontalAmount, int verticalAmount)
+		{
+			rectangle.Inflate(horizontalAmount, verticalAmount);
+		}
+
+		public void Offset(Vector2 amount)
+		{
+			rectangle.Offset(amount);
+		}
+
+		public void Offset(float offsetX, float offsetY)
+		{
+			rectangle.Offset(offsetX, offsetY);
+		}
+
+		public void Offset(int offsetX, int offsetY)
+		{
+			rectangle.Offset(offsetX, offsetY);
+		}
+
+		public void Offset(Point amount)
+		{
+			rectangle.Offset(amount);
+		}
+
+		public override string ToString()
+		{
+			return rectangle.ToString();
 		}
 	}
 }

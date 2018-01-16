@@ -51,10 +51,9 @@
     <Compile Include="DrawHelper.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Physics\PhysicsHelper.cs" />
-    <Compile Include="EntityManager.cs" />
     <Compile Include="Physics\PhysicsEngine.cs" />
+    <Compile Include="Physics\CollisionBox.cs" />
     <Compile Include="Physics\Box.cs" />
-    <Compile Include="Physics\RectangleBox.cs" />
     <Compile Include="Physics\SpatialGrid.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainGame.cs" />

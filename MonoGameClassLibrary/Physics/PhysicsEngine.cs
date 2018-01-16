@@ -5,44 +5,54 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using static MonoGameClassLibrary.EntityManager;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public class PhysicsEngine : EntityManager.Drawable
+	public class PhysicsEngine : DrawableGameComponent
 	{
 		public SpatialGrid SpatialGrid { get; protected set; }
 		public int Width { get { return SpatialGrid.Width; } }
 		public int Height { get { return SpatialGrid.Width; } }
-		protected List<Box> boxes;
 
-		public PhysicsEngine(int width, int height)
+		public PhysicsEngine(Game game, Rectangle rectangle)
+			: base(game)
 		{
-			SpatialGrid = new SpatialGrid(width / SpatialGrid.TILE_SIZE, height / SpatialGrid.TILE_SIZE);
-			boxes = new List<Box>();
+			SpatialGrid = new SpatialGrid(Game, rectangle.Width / SpatialGrid.TILE_SIZE, rectangle.Height / SpatialGrid.TILE_SIZE);
 			DrawOrder = int.MaxValue;
 		}
 
-		public void Add(Box box)
+		public void Update(GameTime gameTime, IEnumerable<GameComponent> components)
 		{
-			boxes.Add(box);
-			SpatialGrid.AddBox(box);
+			List<Box> boxes = new List<Box>();
+			List<Box> movingBoxes = new List<Box>();
+			foreach (GameComponent component in components)
+			{
+				if (component is Box)
+				{
+					Box box = component as Box;
+					boxes.Add(box);
+					if (box.Acceleration != Vector2.Zero)
+					{
+						box.UpdateSpeed(gameTime);
+						if (box.Speed != Vector2.Zero)
+						{
+							movingBoxes.Add(box);
+						}
+					}
+					if (box is CollisionBox)
+					{
+						CollisionBox collisionBox = box as CollisionBox;
+						collisionBox.ClearCollisions();
+					}
+				}
+				component.Update(gameTime);
+			}
+
+			ApplyPhysics(gameTime, movingBoxes);
+			ApplyCollisions(boxes);
 		}
 
-		public void Remove(Box box)
-		{
-			boxes.Remove(box);
-			SpatialGrid.RemoveBox(box);
-		}
-
-		public override void EntityUpdate(GameTime gameTime)
-		{
-			IEnumerable<Box> movingBox = ApplyUpdates(gameTime);
-			ApplyPhysics(gameTime, movingBox);
-			ApplyCollisions();
-		}
-
-		public void ApplyCollisions()
+		public void ApplyCollisions(IEnumerable<Box> boxes)
 		{
 			foreach (Box box in boxes)
 			{
@@ -52,31 +62,9 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private IEnumerable<Box> ApplyUpdates(GameTime gameTime)
-		{
-			List<Box> movingBoxes = new List<Box>();
-
-			foreach (Box box in boxes)
-			{
-				if (box.Acceleration != Vector2.Zero)
-				{
-					box.UpdateSpeed(gameTime);
-					if (box.Speed != Vector2.Zero)
-					{
-						movingBoxes.Add(box);
-					}
-				}
-				box.PhysicsUpdate(gameTime);
-				box.ClearCollisions();
-			}
-
-			return movingBoxes;
-		}
-
 		//BUG : résolution de collision de deux objets qui bougent, pas précis
 		private void ApplyPhysics(GameTime gameTime, IEnumerable<Box> movingBox)
 		{
-			int collisions = 0;
 			foreach (Box box in movingBox)
 			{
 				SpatialGrid.RemoveBox(box);
@@ -84,7 +72,7 @@ namespace MonoGameClassLibrary.Physics
 				int steps = 1;
 
 				int maxSpeed = SpatialGrid.TILE_SIZE;
-				if (false) //precise collsion... Oui, non? Flag?
+				if (box.PreciseCollision)
 				{
 					maxSpeed = Math.Min(box.Width, box.Height);
 				}
@@ -106,7 +94,7 @@ namespace MonoGameClassLibrary.Physics
 					{
 						break;
 					}
-					else if(PhysicsHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
+					else if (PhysicsHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
 					{
 						if (box.InteractWithSolid)
 						{
@@ -119,26 +107,28 @@ namespace MonoGameClassLibrary.Physics
 				if (box.InteractWithSolid && lastStepIsAPhysicalColllision)
 				{
 					PhysicsHelper.StopSpeed(box, SpatialGrid);
-					collisions++;
 				}
 
 				SpatialGrid.AddBox(box);
 			}
-
-			Console.WriteLine("PhysicalCollisions : " + collisions);
 		}
 
-		public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public override void Draw(GameTime gameTime)
 		{
-			foreach (Box box in boxes)
+			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
+			foreach (Box box in SpatialGrid.GetProbableCollisions(new Box(null, new Rectangle(0, 0, Width, Height))))
 			{
-				Vector2 end = box.Speed;
-				end *= (float)gameTime.ElapsedGameTime.TotalSeconds;
-
 				DrawHelper.DrawOutline(spriteBatch, box.Rectangle, Color.Black);
+
+				Vector2 end = box.Acceleration;
+				end *= (float)gameTime.ElapsedGameTime.TotalSeconds;
 				DrawHelper.DrawLine(spriteBatch, box.Center, box.Center + end.ToPoint(), Color.Red);
+
+				end = box.Speed;
+				end *= (float)gameTime.ElapsedGameTime.TotalSeconds;
+				DrawHelper.DrawLine(spriteBatch, box.Center, box.Center + end.ToPoint(), Color.Blue);
 			}
-			SpatialGrid.Draw(spriteBatch, gameTime);
+			SpatialGrid.Draw(gameTime);
 		}
 	}
 }

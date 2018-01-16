@@ -1,81 +1,65 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameClassLibrary.Physics;
+using System.Collections.Generic;
 
 namespace MonoGameClassLibrary
 {
 	public class MainGame : Game
 	{
-		//Retirer les évenements et les transformer en appel de Scene
-		public delegate void UpdateHandler(MainGame sender, GameTime gameTime);
-		public event UpdateHandler WillUpdate;
-		public event UpdateHandler HasUpdated;
-		public event UpdateHandler EntityManagerWillUpdate;
-		public event UpdateHandler EntityManagerHasUpdated;
-		public event UpdateHandler PhysicsEngineWillUpdate;
-		public event UpdateHandler PhysicsEngineHasUpdated;
-		public event UpdateHandler CameraWillUpdate;
-		public event UpdateHandler CameraHasUpdated;
-
-		public delegate void DrawHandler(MainGame sender, GameTime gameTime);
-		public event DrawHandler WillDraw;
-		public event DrawHandler HasDrawn;
-
 		public GraphicsDeviceManager Graphics { get; protected set; }
 		public SpriteBatch SpriteBatch { get; protected set; }
-		public EntityManager EntityManager { get; protected set; }
-		public PhysicsEngine PhysicsEngine { get; protected set; }
-		public Camera Camera { get; protected set; }
+		public Stack<Scene> Scenes;
 
 		public MainGame()
 		{
-			IsFixedTimeStep = false;
+			IsFixedTimeStep = true;
 			Content.RootDirectory = "Content";
 			Graphics = new GraphicsDeviceManager(this);
+			Scenes = new Stack<Scene>();
 		}
 
 		protected override void LoadContent()
 		{
+			SpriteBatch = new SpriteBatch(GraphicsDevice);
+			Services.AddService(SpriteBatch);
+
 			DrawHelper.Init(GraphicsDevice, Content);
 
-			SpriteBatch = new SpriteBatch(GraphicsDevice);
-			EntityManager = new EntityManager(this);
-			PhysicsEngine = new PhysicsEngine(2000, 2000);//La taille ne devrait pas être fixe
-			Camera = new Camera(GraphicsDevice.Viewport);
+			MainGameBegin();
 		}
+
+		protected virtual void MainGameBegin() { }
 
 		protected override void Update(GameTime gameTime)
 		{
-			WillUpdate?.Invoke(this, gameTime);
-
-			EntityManagerWillUpdate?.Invoke(this, gameTime);
-			EntityManager.Update(gameTime);
-			EntityManagerHasUpdated?.Invoke(this, gameTime);
-
-			PhysicsEngineWillUpdate?.Invoke(this, gameTime);
-			PhysicsEngine.EntityUpdate(gameTime);
-			PhysicsEngineHasUpdated?.Invoke(this, gameTime);
-
-			CameraWillUpdate?.Invoke(this, gameTime);
-			Camera.EntityUpdate(gameTime);
-			CameraHasUpdated?.Invoke(this, gameTime);
-
-			HasUpdated?.Invoke(this, gameTime);
+			if (Scenes.Count > 0)
+			{
+				Scenes.Peek().Update(gameTime);
+			}
+			else
+			{
+				Exit();
+			}
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-			WillDraw?.Invoke(this, gameTime);
-
-			GraphicsDevice.Clear(Color.Transparent);
-			SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.Transform);
-			EntityManager.Draw(gameTime);
+			if (Scenes.Count > 0)
+			{
+				Scenes.Peek().Draw(gameTime);
+			}
+			else
+			{
+				Exit();
+			}
 #if DEBUG
-			PhysicsEngine.Draw(SpriteBatch, gameTime);
-#endif
+			SpriteBatch.Begin();
+			int fps = (int)(1 / gameTime.ElapsedGameTime.TotalSeconds);
+			DrawHelper.DrawRectangle(SpriteBatch, new Rectangle(0, 0, 400, 100), new Color(Color.Gray, 0.25f));
+			DrawHelper.DrawText(SpriteBatch, fps.ToString(), new Vector2(0, 0), Color.Black);
 			SpriteBatch.End();
-
-			HasDrawn?.Invoke(this, gameTime);
+#endif
 		}
 	}
 }
