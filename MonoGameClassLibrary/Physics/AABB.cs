@@ -236,69 +236,9 @@ namespace MonoGameClassLibrary.Physics
 			return result;
 		}
 
-		public bool LeftCollision(IEnumerable<AABB> aabbs)
-		{
-			foreach (AABB aabb in aabbs)
-			{
-				if (LeftCollision(aabb))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public virtual bool RightCollision(IEnumerable<AABB> aabbs)
-		{
-			foreach (AABB aabb in aabbs)
-			{
-				if (RightCollision(aabb))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public bool TopCollision(IEnumerable<AABB> aabbs)
-		{
-			foreach (AABB aabb in aabbs)
-			{
-				if (TopCollision(aabb))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public bool BottomCollision(IEnumerable<AABB> aabbs)
-		{
-			foreach (AABB aabb in aabbs)
-			{
-				if (BottomCollision(aabb))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
 		public virtual bool Intersects(AABB value)
 		{
 			return Rectangle.Intersects(value.Rectangle);
-		}
-
-		public bool Intersect(IEnumerable<AABB> aabbs)
-		{
-			foreach (AABB aabb in aabbs)
-			{
-				if (Rectangle.Intersects(aabb.Rectangle))
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 
 		#region MonoGame Methods

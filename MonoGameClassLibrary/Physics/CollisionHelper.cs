@@ -12,11 +12,10 @@ namespace MonoGameClassLibrary.Physics
 	//TODO RELIRE
 	public static class CollisionHelper
 	{
-		//TODO: gestion manuelle de retirer box de spatial grid avant de jouer ici...
 		public static bool PhysicalCollisions(GameTime gameTime, Box box, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
-			if (box.Intersect(spatialGrid.GetProbableSolidCollisions(box)))
+			if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
 			{
 				Vector2 oldSpeed = box.Speed;
 				Rectangle OldRectangle = new Rectangle();
@@ -24,7 +23,7 @@ namespace MonoGameClassLibrary.Physics
 				while (box.Rectangle != OldRectangle)
 				{
 					OldRectangle = box.Rectangle;
-					if (box.Intersect(spatialGrid.GetProbableSolidCollisions(box)))
+					if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
 					{
 						//Défait le mouvement qui créer la collion
 						box.Speed = Vector2.Negate(box.Speed);
@@ -57,17 +56,77 @@ namespace MonoGameClassLibrary.Physics
 			return false;
 		}
 
+		public static bool Intersect(AABB main, IEnumerable<AABB> aabbs)
+		{
+			foreach (AABB aabb in aabbs)
+			{
+				if (main.Intersects(aabb))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool LeftCollision(AABB main, IEnumerable<AABB> aabbs)
+		{
+			foreach (AABB aabb in aabbs)
+			{
+				if (main.LeftCollision(aabb))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool RightCollision(AABB main, IEnumerable<AABB> aabbs)
+		{
+			foreach (AABB aabb in aabbs)
+			{
+				if (main.RightCollision(aabb))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool TopCollision(AABB main, IEnumerable<AABB> aabbs)
+		{
+			foreach (AABB aabb in aabbs)
+			{
+				if (main.TopCollision(aabb))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool BottomCollision(AABB main, IEnumerable<AABB> aabbs)
+		{
+			foreach (AABB aabb in aabbs)
+			{
+				if (main.BottomCollision(aabb))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public static void StopSpeed(Box box, SpatialGrid spatialGrid)
 		{
 			//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
 			IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(box);
-			if (((box.Speed.X < 0) && (box.LeftCollision(solids))) ||
-				((box.Speed.X > 0) && ((box.RightCollision(solids)))))
+			if (((box.Speed.X < 0) && (LeftCollision(box, solids))) ||
+				((box.Speed.X > 0) && ((RightCollision(box, solids)))))
 			{
 				box.Speed.X = 0;
 			}
-			if (((box.Speed.Y < 0) && (box.TopCollision(solids))) ||
-				((box.Speed.Y > 0) && (box.BottomCollision(solids))))
+			if (((box.Speed.Y < 0) && (TopCollision(box, solids))) ||
+				((box.Speed.Y > 0) && (BottomCollision(box, solids))))
 			{
 				box.Speed.Y = 0;
 			}

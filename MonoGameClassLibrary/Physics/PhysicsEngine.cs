@@ -38,7 +38,7 @@ namespace MonoGameClassLibrary.Physics
 		public override void Update(GameTime gameTime)
 		{
 			UpdatePositions(gameTime);
-			ResolveCollisions();
+			ResolveCollisions();//Pourrait se faire par évenement
 		}
 
 		private void ResolveCollisions()
@@ -48,7 +48,6 @@ namespace MonoGameClassLibrary.Physics
 				if (aabb is Box)
 				{
 					//TODO: classic collision resolution
-					//Pourrait aller dans La spatial grid?
 					//Ou ne pas le faire dans la boucle ici, mais bien s'abbonner aux évenements des boites?
 				}
 
@@ -98,7 +97,7 @@ namespace MonoGameClassLibrary.Physics
 			int steps = 1;
 
 			float maxSpeed = SpatialGrid.TILE_SIZE;
-			if (box.PreciseMovement)
+			if (box.PreciseMovement)//???
 			{
 				maxSpeed = Math.Min(box.Width, box.Height);
 			}
@@ -107,8 +106,10 @@ namespace MonoGameClassLibrary.Physics
 				steps = (int)Math.Ceiling(box.Speed.Length() / maxSpeed);
 			}
 
-			GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
-			relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
+			GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime)
+			{
+				ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps)
+			};
 
 			for (int i = 0; i < steps; i++)
 			{
@@ -118,7 +119,7 @@ namespace MonoGameClassLibrary.Physics
 				{
 					break;
 				}
-				else if (box.Intersect(SpatialGrid.GetProbableCollisions(box)))
+				else if (CollisionHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
 				{
 					if (box.InteractWithSolid)
 					{
