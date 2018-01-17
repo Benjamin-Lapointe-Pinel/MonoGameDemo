@@ -46,37 +46,6 @@ namespace MonoGameClassLibrary.Physics
 
 		public override void Update(GameTime gameTime)
 		{
-			UpdatePositions(gameTime);
-			ResolveCollisions();//Pourrait se faire par évenement
-		}
-
-		private void aabb_PropertyChanging(AABB sender, PropertyChangingEventArgs e)
-		{
-			SpatialGrid.Remove(sender);
-		}
-
-		private void aabb_PropertyChanged(AABB sender, PropertyChangedEventArgs e)
-		{
-			SpatialGrid.Add(sender);
-		}
-
-		private void ResolveCollisions()
-		{
-			foreach (AABB aabb in aabbs.Values)
-			{
-				if (aabb is Box)
-				{
-					//TODO: classic collision resolution
-					//Ou ne pas le faire dans la boucle ici, mais bien s'abbonner aux évenements des boites?
-					//Peut-être retirer cette responsabilité de SpatialGrid
-				}
-
-				SetCollisionFlags(aabb, SpatialGrid.GetProbableCollisions(aabb));
-			}
-		}
-
-		private void UpdatePositions(GameTime gameTime)
-		{
 			foreach (AABB aabb in aabbs.Values)
 			{
 				if (aabb is Box)
@@ -102,12 +71,18 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		protected void SetCollisionFlags(AABB toBeFlagged, IEnumerable<AABB> aabbs)
+		private void aabb_PropertyChanged(AABB sender, PropertyChangedEventArgs e)
 		{
+			IEnumerable<AABB> aabbs = SpatialGrid.Add(sender);
 			foreach (AABB aabb in aabbs)
 			{
-				toBeFlagged.CollisionNotification(aabb);
+				sender.CollisionNotification(aabb);
 			}
+		}
+
+		private void aabb_PropertyChanging(AABB sender, PropertyChangingEventArgs e)
+		{
+			SpatialGrid.Remove(sender);
 		}
 
 		//BUG : résolution de collision de deux objets qui bougent, pas précis
@@ -148,7 +123,11 @@ namespace MonoGameClassLibrary.Physics
 					{
 						CollisionHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
 					}
-					SetCollisionFlags(box, SpatialGrid.GetProbableCollisions(box));
+					//SetCollisionFlags(box, SpatialGrid.GetProbableCollisions(box));
+					foreach (AABB collision in SpatialGrid.GetProbableCollisions(box))
+					{
+						box.CollisionNotification(collision);
+					}
 				}
 			}
 			CollisionHelper.StopSpeed(box, SpatialGrid);

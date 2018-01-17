@@ -138,29 +138,65 @@ namespace MonoGameClassLibrary.Physics
 
 		public void CollisionNotification(AABB aabb)
 		{
-			CollisionDirection side = CollisionDirection.None;
-			if (this.Intersects(aabb))
+			CollisionDirection senderSide = CollisionDirection.None;
+			CollisionDirection receiverSide = CollisionDirection.None;
+
+			if (Intersects(aabb))
 			{
-				side |= CollisionDirection.Inside;
-			}
-			if (LeftCollision(aabb))
-			{
-				side |= CollisionDirection.Left;
-			}
-			if (RightCollision(aabb))
-			{
-				side |= CollisionDirection.Right;
-			}
-			if (TopCollision(aabb))
-			{
-				side |= CollisionDirection.Top;
-			}
-			if (BottomCollision(aabb))
-			{
-				side |= CollisionDirection.Bottom;
+				senderSide |= CollisionDirection.Inside;
+				receiverSide |= CollisionDirection.Inside;
 			}
 
-			OnCollision?.Invoke(this, new CollisionEventArgs(aabb, side));
+			if (this is Box)
+			{
+				Box box = this as Box;
+				if ((box.Speed.X <= 0) && LeftCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Left;
+					receiverSide |= CollisionDirection.Right;
+				}
+				if ((box.Speed.X >= 0) && RightCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Right;
+					receiverSide |= CollisionDirection.Left;
+				}
+				if ((box.Speed.Y <= 0) && TopCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Top;
+					receiverSide |= CollisionDirection.Bottom;
+				}
+				if ((box.Speed.Y >= 0) && BottomCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Bottom;
+					receiverSide |= CollisionDirection.Top;
+				}
+			}
+			else
+			{
+				if (LeftCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Left;
+					receiverSide |= CollisionDirection.Right;
+				}
+				if (RightCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Right;
+					receiverSide |= CollisionDirection.Left;
+				}
+				if (TopCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Top;
+					receiverSide |= CollisionDirection.Bottom;
+				}
+				if (BottomCollision(aabb))
+				{
+					senderSide |= CollisionDirection.Bottom;
+					receiverSide |= CollisionDirection.Top;
+				}
+			}
+
+			OnCollision?.Invoke(this, new CollisionEventArgs(aabb, senderSide));
+			aabb.OnCollision?.Invoke(aabb, new CollisionEventArgs(this, receiverSide));
 		}
 
 		public virtual bool LeftCollision(AABB aabb)
