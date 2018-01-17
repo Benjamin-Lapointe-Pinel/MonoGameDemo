@@ -15,7 +15,7 @@ namespace MonoGameDemo
 	public class Scene1 : Scene
 	{
 		Character player1;
-		Character player2;
+		//Character player2;
 
 		public Scene1(MainGame mainGame)
 			: base(mainGame, 5000, 5000)
@@ -31,17 +31,17 @@ namespace MonoGameDemo
 			AnimationSheet animationSheet = AnimationSheetFactory(PlayerTexture);
 			player1 = new Character(MainGame, animationSheet, new Rectangle(128, 128, 64, 64));
 			animationSheet = AnimationSheetFactory(PlayerTexture);
-			player2 = new Character(MainGame, animationSheet, new Rectangle(256, 128, 64, 64));
+			//player2 = new Character(MainGame, animationSheet, new Rectangle(256, 128, 64, 64));
 
 			AddToScene(player1);
-			AddToScene(player2);
+			//AddToScene(player2);
 
 			//Test de performance
 			for (int i = 0; i < 50; i++)
 			{
-				//animationSheet = AnimationSheetFactory(PlayerTexture);
-				//Character character = new Character(MainGame, animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
-				//AddToScene(character);
+				animationSheet = AnimationSheetFactory(PlayerTexture);
+				Character character = new Character(MainGame, animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
+				AddToScene(character);
 			}
 		}
 
@@ -62,18 +62,18 @@ namespace MonoGameDemo
 				player1.Jump();
 			}
 
-			if (keyboardState.IsKeyDown(Keys.Left))
-			{
-				player2.WalkLeft();
-			}
-			if (keyboardState.IsKeyDown(Keys.Right))
-			{
-				player2.WalkRight();
-			}
-			if (keyboardState.IsKeyDown(Keys.Up))
-			{
-				player2.Jump();
-			}
+			//if (keyboardState.IsKeyDown(Keys.Left))
+			//{
+			//	player2.WalkLeft();
+			//}
+			//if (keyboardState.IsKeyDown(Keys.Right))
+			//{
+			//	player2.WalkRight();
+			//}
+			//if (keyboardState.IsKeyDown(Keys.Up))
+			//{
+			//	player2.Jump();
+			//}
 			
 			base.Update(gameTime);
 

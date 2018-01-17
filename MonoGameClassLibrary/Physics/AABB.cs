@@ -129,6 +129,15 @@ namespace MonoGameClassLibrary.Physics
 			this.Solid = solid;
 
 			UpdateOrder = int.MaxValue - 1;
+
+#if DEBUG
+			OnCollision += DebugPrintCollision;
+#endif
+		}
+
+		private void DebugPrintCollision(AABB sender, CollisionEventArgs e)
+		{
+			Console.WriteLine(sender.GetType().Name + " " + e.CollisionSide + " collided with " + e.CollidedWith.GetType().Name);
 		}
 
 		public AABB(AABB aabb)
@@ -136,6 +145,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 		}
 
+		//TODO : retirer CollisionDirection.None. On devrait que passer des vrais collisions ici
 		public void CollisionNotification(AABB aabb)
 		{
 			CollisionDirection senderSide = CollisionDirection.None;
@@ -146,57 +156,65 @@ namespace MonoGameClassLibrary.Physics
 				senderSide |= CollisionDirection.Inside;
 				receiverSide |= CollisionDirection.Inside;
 			}
-
-			if (this is Box)
-			{
-				Box box = this as Box;
-				if ((box.Speed.X <= 0) && LeftCollision(aabb))
-				{
-					senderSide |= CollisionDirection.Left;
-					receiverSide |= CollisionDirection.Right;
-				}
-				if ((box.Speed.X >= 0) && RightCollision(aabb))
-				{
-					senderSide |= CollisionDirection.Right;
-					receiverSide |= CollisionDirection.Left;
-				}
-				if ((box.Speed.Y <= 0) && TopCollision(aabb))
-				{
-					senderSide |= CollisionDirection.Top;
-					receiverSide |= CollisionDirection.Bottom;
-				}
-				if ((box.Speed.Y >= 0) && BottomCollision(aabb))
-				{
-					senderSide |= CollisionDirection.Bottom;
-					receiverSide |= CollisionDirection.Top;
-				}
-			}
 			else
 			{
-				if (LeftCollision(aabb))
+				if (this is Box)
 				{
-					senderSide |= CollisionDirection.Left;
-					receiverSide |= CollisionDirection.Right;
+					Box box = this as Box;
+					if ((box.Speed.X <= 0) && LeftCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Left;
+						receiverSide |= CollisionDirection.Right;
+					}
+					if ((box.Speed.X >= 0) && RightCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Right;
+						receiverSide |= CollisionDirection.Left;
+					}
+					if ((box.Speed.Y <= 0) && TopCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Top;
+						receiverSide |= CollisionDirection.Bottom;
+					}
+					if ((box.Speed.Y >= 0) && BottomCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Bottom;
+						receiverSide |= CollisionDirection.Top;
+					}
 				}
-				if (RightCollision(aabb))
+				else
 				{
-					senderSide |= CollisionDirection.Right;
-					receiverSide |= CollisionDirection.Left;
-				}
-				if (TopCollision(aabb))
-				{
-					senderSide |= CollisionDirection.Top;
-					receiverSide |= CollisionDirection.Bottom;
-				}
-				if (BottomCollision(aabb))
-				{
-					senderSide |= CollisionDirection.Bottom;
-					receiverSide |= CollisionDirection.Top;
+					if (LeftCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Left;
+						receiverSide |= CollisionDirection.Right;
+					}
+					if (RightCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Right;
+						receiverSide |= CollisionDirection.Left;
+					}
+					if (TopCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Top;
+						receiverSide |= CollisionDirection.Bottom;
+					}
+					if (BottomCollision(aabb))
+					{
+						senderSide |= CollisionDirection.Bottom;
+						receiverSide |= CollisionDirection.Top;
+					}
 				}
 			}
 
-			OnCollision?.Invoke(this, new CollisionEventArgs(aabb, senderSide));
-			aabb.OnCollision?.Invoke(aabb, new CollisionEventArgs(this, receiverSide));
+			if (senderSide != CollisionDirection.None)
+			{
+				OnCollision?.Invoke(this, new CollisionEventArgs(aabb, senderSide));
+			}
+			if (receiverSide != CollisionDirection.None)
+			{
+				aabb.OnCollision?.Invoke(aabb, new CollisionEventArgs(this, receiverSide));
+			}
 		}
 
 		public virtual bool LeftCollision(AABB aabb)
@@ -272,16 +290,6 @@ namespace MonoGameClassLibrary.Physics
 			result = ((((this.X <= value.X) && (value.X < (this.X + this.Width))) && (this.Y <= value.Y)) && (value.Y < (this.Y + this.Height)));
 		}
 
-		public bool Contains(AABB value)
-		{
-			return ((((this.X <= value.X) && ((value.X + value.Width) <= (this.X + this.Width))) && (this.Y <= value.Y)) && ((value.Y + value.Height) <= (this.Y + this.Height)));
-		}
-
-		public void Contains(ref AABB value, out bool result)
-		{
-			result = ((((this.X <= value.X) && ((value.X + value.Width) <= (this.X + this.Width))) && (this.Y <= value.Y)) && ((value.Y + value.Height) <= (this.Y + this.Height)));
-		}
-
 		public void Inflate(float horizontalAmount, float verticalAmount)
 		{
 			PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
@@ -310,7 +318,7 @@ namespace MonoGameClassLibrary.Physics
 
 		public override string ToString()
 		{
-			return "{X:" + X + " Y:" + Y + " Width:" + Width + " Height:" + Height + "}";
+			return GetType().Name + " {X:" + X + " Y:" + Y + " Width:" + Width + " Height:" + Height + "}";
 		}
 
 		#endregion
