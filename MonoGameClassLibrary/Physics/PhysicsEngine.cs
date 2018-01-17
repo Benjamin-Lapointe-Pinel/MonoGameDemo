@@ -97,7 +97,7 @@ namespace MonoGameClassLibrary.Physics
 			float maxSpeed = SpatialGrid.TILE_SIZE;
 			if (box.PreciseMovement)
 			{
-				//maxSpeed = Math.Min(box.Width, box.Height);//???
+				maxSpeed = Math.Min(box.Width, box.Height);
 			}
 			if (box.Speed.Length() > maxSpeed)
 			{
@@ -113,20 +113,22 @@ namespace MonoGameClassLibrary.Physics
 			{
 				box.UpdateLocation(relativeGameTime);
 
-				if (box.Speed == Vector2.Zero)
+				if (CollisionHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
 				{
-					break;
-				}
-				else if (CollisionHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
-				{
+					bool stopped = false;
 					if (box.InteractWithSolid)
 					{
-						CollisionHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
+						stopped = CollisionHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
 					}
-					//SetCollisionFlags(box, SpatialGrid.GetProbableCollisions(box));
+
 					foreach (AABB collision in SpatialGrid.GetProbableCollisions(box))
 					{
 						box.CollisionNotification(collision);
+					}
+
+					if (stopped)
+					{
+						break;
 					}
 				}
 			}

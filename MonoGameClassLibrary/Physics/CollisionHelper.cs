@@ -40,17 +40,22 @@ namespace MonoGameClassLibrary.Physics
 
 				box.Speed = oldSpeed;
 				StopSpeed(box, spatialGrid);
+				oldSpeed = box.Speed;
+
 				box.UpdateLocation(gameTime);
+
 				box.Speed = oldSpeed;
 
 				//New collision possible
-				if (oldSpeed != Vector2.Zero)
+				if (oldSpeed == Vector2.Zero)
+				{
+					return true;
+				}
+				else
 				{
 					//Resolve new movement
-					PhysicalCollisions(gameTime, box, spatialGrid);
+					return PhysicalCollisions(gameTime, box, spatialGrid);
 				}
-
-				return true;
 			}
 
 			return false;

@@ -10,7 +10,7 @@ namespace MonoGameClassLibrary.Physics
 {
 	public class SpatialGrid : DrawableGameComponent
 	{
-		public static readonly int TILE_SIZE = 64;
+		public static readonly int TILE_SIZE = 128;
 		
 		public List<AABB>[,] Tiles { get; protected set; }
 		public int TilesWidth { get { return Tiles.GetLength(0); } }

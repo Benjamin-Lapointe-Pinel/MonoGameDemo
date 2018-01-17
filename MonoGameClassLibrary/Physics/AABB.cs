@@ -128,16 +128,7 @@ namespace MonoGameClassLibrary.Physics
 			this.Rectangle = rectangle;
 			this.Solid = solid;
 
-			UpdateOrder = int.MaxValue - 1;
-
-#if DEBUG
-			OnCollision += DebugPrintCollision;
-#endif
-		}
-
-		private void DebugPrintCollision(AABB sender, CollisionEventArgs e)
-		{
-			Console.WriteLine(sender.GetType().Name + " " + e.CollisionSide + " collided with " + e.CollidedWith.GetType().Name);
+			UpdateOrder = Int16.MaxValue;
 		}
 
 		public AABB(AABB aabb)

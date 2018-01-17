@@ -23,7 +23,7 @@ namespace MonoGameClassLibrary.Physics
 
 			Acceleration = new Vector2(0, 0);
 			Speed = new Vector2(0, 0);
-			UpdateOrder = int.MaxValue;
+			UpdateOrder = Int32.MaxValue;
 		}
 
 		public Box(Box box)
