@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +50,7 @@ namespace MonoGameClassLibrary.Physics
 				{
 					//TODO: classic collision resolution
 					//Ou ne pas le faire dans la boucle ici, mais bien s'abbonner aux évenements des boites?
+					//Peut-être retirer cette responsabilité de SpatialGrid
 				}
 
 				SetCollisionFlags(aabb, SpatialGrid.GetProbableCollisions(aabb));

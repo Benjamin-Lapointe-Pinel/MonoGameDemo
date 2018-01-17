@@ -34,8 +34,8 @@ namespace MonoGameClassLibrary.Physics
 		public void Add(AABB aabb)
 		{
 			AddToSpatialGrid(aabb);
-			aabb.PropertyWillChange += aabb_PropertyWillChange;
-			aabb.PropertyHasChange += aabb_PropertyHasChange;
+			aabb.PropertyChanging += aabb_PropertyChanging;
+			aabb.PropertyChanged += aabb_PropertyChanged;
 		}
 
 		protected void AddToSpatialGrid(AABB aabb)
@@ -49,8 +49,8 @@ namespace MonoGameClassLibrary.Physics
 		public void Remove(AABB aabb)
 		{
 			RemoveFromSpatialGrid(aabb);
-			aabb.PropertyWillChange -= aabb_PropertyWillChange;
-			aabb.PropertyHasChange -= aabb_PropertyHasChange;
+			aabb.PropertyChanging -= aabb_PropertyChanging;
+			aabb.PropertyChanged -= aabb_PropertyChanged;
 		}
 
 		protected void RemoveFromSpatialGrid(AABB aabb)
@@ -61,12 +61,12 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private void aabb_PropertyWillChange(AABB sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void aabb_PropertyChanging(AABB sender, System.ComponentModel.PropertyChangingEventArgs e)
 		{
 			RemoveFromSpatialGrid(sender);
 		}
 
-		private void aabb_PropertyHasChange(AABB sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void aabb_PropertyChanged(AABB sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			AddToSpatialGrid(sender);
 		}		

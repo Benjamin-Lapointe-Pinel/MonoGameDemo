@@ -26,14 +26,14 @@ namespace MonoGameDemo
 		public void Open(object sender)
 		{
 			Solid = false;
-			Width = 53;
+			Size = new Vector2(53, height);
 			sprite.SourceRectangle.X = 64;
 		}
 
 		public void Close(object sender)
 		{
 			Solid = true;
-			Width = 4;
+			Size = new Vector2(4, height);
 			sprite.SourceRectangle.X = 0;
 		}
 

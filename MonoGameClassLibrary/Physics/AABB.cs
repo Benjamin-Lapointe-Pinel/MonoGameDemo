@@ -38,71 +38,23 @@ namespace MonoGameClassLibrary.Physics
 		public delegate void CollisionHandler(AABB sender, CollisionEventArgs e);
 		public event CollisionHandler OnCollision;
 
-		public delegate void PropertyChangedHandler(AABB sender, PropertyChangedEventArgs e);
-		public event PropertyChangedHandler PropertyWillChange;
-		public event PropertyChangedHandler PropertyHasChange;
+		public delegate void PropertyChangingEventHandler(AABB aabb, PropertyChangingEventArgs e);
+		public delegate void PropertyChangedEventHandler(AABB aabb, PropertyChangedEventArgs e);
+		public event PropertyChangingEventHandler PropertyChanging;
+		public event PropertyChangedEventHandler PropertyChanged;
+		protected static PropertyChangingEventArgs PropertyChangingEventArgsLocation = new PropertyChangingEventArgs("Location");
+		protected static PropertyChangedEventArgs PropertyChangedEventArgsLocation = new PropertyChangedEventArgs("Location");
+		protected static PropertyChangingEventArgs PropertyChangingEventArgsSize = new PropertyChangingEventArgs("Size");
+		protected static PropertyChangedEventArgs PropertyChangedEventArgsSize = new PropertyChangedEventArgs("Size");
 
-		protected static PropertyChangedEventArgs PropertyChangedEventArgsX = new PropertyChangedEventArgs("X");
-		protected static PropertyChangedEventArgs PropertyChangedEventArgsY = new PropertyChangedEventArgs("Y");
-		protected static PropertyChangedEventArgs PropertyChangedEventArgsWidth = new PropertyChangedEventArgs("Width");
-		protected static PropertyChangedEventArgs PropertyChangedEventArgsHeight = new PropertyChangedEventArgs("Height");
-
-		public float x;
-		public float X
-		{
-			get
-			{
-				return x;
-			}
-			set
-			{
-				PropertyWillChange?.Invoke(this, PropertyChangedEventArgsX);
-				x = value;
-				PropertyHasChange?.Invoke(this, PropertyChangedEventArgsX);
-			}
-		}
-		public float y;
-		public float Y
-		{
-			get
-			{
-				return y;
-			}
-			set
-			{
-				PropertyWillChange?.Invoke(this, PropertyChangedEventArgsY);
-				y = value;
-				PropertyHasChange?.Invoke(this, PropertyChangedEventArgsY);
-			}
-		}
-		public float width;
-		public float Width
-		{
-			get
-			{
-				return width;
-			}
-			set
-			{
-				PropertyWillChange?.Invoke(this, PropertyChangedEventArgsWidth);
-				width = value;
-				PropertyHasChange?.Invoke(this, PropertyChangedEventArgsWidth);
-			}
-		}
-		public float height;
-		public float Height
-		{
-			get
-			{
-				return height;
-			}
-			set
-			{
-				PropertyWillChange?.Invoke(this, PropertyChangedEventArgsHeight);
-				height = value;
-				PropertyHasChange?.Invoke(this, PropertyChangedEventArgsHeight);
-			}
-		}
+		protected float x;
+		protected float y;
+		protected float width;
+		protected float height;
+		public float X { get { return x; } }
+		public float Y { get { return y; } }
+		public float Width { get { return width; } }
+		public float Height { get { return height; } }
 		public float Left { get { return X; } }
 		public float Right { get { return Left + Width; } }
 		public float Top { get { return Y; } }
@@ -118,10 +70,12 @@ namespace MonoGameClassLibrary.Physics
 			}
 			set
 			{
-				X = value.X;
-				Y = value.Y;
-				Width = value.Width;
-				Height = value.Height;
+				PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
+				x = value.X;
+				y = value.Y;
+				width = value.Width;
+				height = value.Height;
+				PropertyChanged?.Invoke(this, PropertyChangedEventArgsSize);
 			}
 		}
 
@@ -133,8 +87,10 @@ namespace MonoGameClassLibrary.Physics
 			}
 			set
 			{
-				X = value.X;
-				Y = value.Y;
+				PropertyChanging?.Invoke(this, PropertyChangingEventArgsLocation);
+				x = value.X;
+				y = value.Y;
+				PropertyChanged?.Invoke(this, PropertyChangedEventArgsLocation);
 			}
 		}
 
@@ -146,8 +102,10 @@ namespace MonoGameClassLibrary.Physics
 			}
 			set
 			{
-				Width = value.X;
-				Height = value.Y;
+				PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
+				width = value.X;
+				height = value.Y;
+				PropertyChanged?.Invoke(this, PropertyChangedEventArgsSize);
 			}
 		}
 
@@ -285,28 +243,27 @@ namespace MonoGameClassLibrary.Physics
 
 		public void Inflate(float horizontalAmount, float verticalAmount)
 		{
-			X -= horizontalAmount;
-			Y -= verticalAmount;
-			Width += horizontalAmount * 2;
-			Height += verticalAmount * 2;
+			PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
+			x -= horizontalAmount;
+			y -= verticalAmount;
+			width += horizontalAmount * 2;
+			height += verticalAmount * 2;
+			PropertyChanged?.Invoke(this, PropertyChangedEventArgsSize);
 		}
 
 		public void Offset(float offsetX, float offsetY)
 		{
-			X += offsetX;
-			Y += offsetY;
+			Location = new Vector2(X + offsetX, Y + offsetY);
 		}
 
 		public void Offset(Point amount)
 		{
-			X += amount.X;
-			Y += amount.Y;
+			Location = new Vector2(X + amount.X, Y + amount.Y);
 		}
 
 		public void Offset(Vector2 amount)
 		{
-			X += amount.X;
-			Y += amount.Y;
+			Location = new Vector2(X + amount.X, Y + amount.Y);
 		}
 
 		public override string ToString()
