@@ -47,12 +47,14 @@
     <Compile Include="Animation\AnimationSheet.cs" />
     <Compile Include="Animation\Cycle.cs" />
     <Compile Include="Animation\Frame.cs" />
+    <Compile Include="DuplicateKeyComparer.cs" />
+    <Compile Include="Physics\AABB.cs" />
     <Compile Include="Physics\DebugPlatform.cs" />
     <Compile Include="DrawHelper.cs" />
     <Compile Include="Camera.cs" />
-    <Compile Include="Physics\PhysicsHelper.cs" />
+    <Compile Include="Physics\CollisionHelper.cs" />
     <Compile Include="Physics\PhysicsEngine.cs" />
-    <Compile Include="Physics\CollisionBox.cs" />
+    <Compile Include="Physics\SmartBox.cs" />
     <Compile Include="Physics\Box.cs" />
     <Compile Include="Physics\SpatialGrid.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

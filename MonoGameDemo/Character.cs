@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public partial class Character : CollisionBox
+	public partial class Character : SmartBox
 	{
 		protected AnimationSheet animationSheet;
 
@@ -21,7 +21,7 @@ namespace MonoGameDemo
 		protected float MaxRunningSpeed;
 
 		public Character(Game game, AnimationSheet animationSheet, Rectangle rectangle)
-			: base(game, rectangle, false, true)
+			: base(game, rectangle, false, true, true)
 		{
 			this.animationSheet = animationSheet;
 
@@ -52,6 +52,8 @@ namespace MonoGameDemo
 				Speed.X = 0;
 				Acceleration.X = 0;
 			}
+
+			base.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)

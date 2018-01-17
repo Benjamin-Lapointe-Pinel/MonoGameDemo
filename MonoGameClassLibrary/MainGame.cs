@@ -13,7 +13,7 @@ namespace MonoGameClassLibrary
 
 		public MainGame()
 		{
-			IsFixedTimeStep = true;
+			IsFixedTimeStep = false;
 			Content.RootDirectory = "Content";
 			Graphics = new GraphicsDeviceManager(this);
 			Scenes = new Stack<Scene>();

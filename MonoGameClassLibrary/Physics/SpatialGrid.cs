@@ -10,9 +10,9 @@ namespace MonoGameClassLibrary.Physics
 {
 	public class SpatialGrid : DrawableGameComponent
 	{
-		public static readonly int TILE_SIZE = 128;
-
-		public List<Box>[,] Tiles { get; protected set; }
+		public static readonly int TILE_SIZE = 64;
+		
+		public List<AABB>[,] Tiles { get; protected set; }
 		public int TilesWidth { get { return Tiles.GetLength(0); } }
 		public int TilesHeight { get { return Tiles.GetLength(1); } }
 		public int Width { get { return Tiles.GetLength(0) * TILE_SIZE; } }
@@ -21,37 +21,59 @@ namespace MonoGameClassLibrary.Physics
 		public SpatialGrid(Game game, int width, int height)
 			: base(game)
 		{
-			DrawOrder = int.MaxValue;
-
-			Tiles = new List<Box>[width, height];
+			Tiles = new List<AABB>[width, height];
 			for (int i = 0; i < Tiles.GetLength(0); i++)
 			{
 				for (int j = 0; j < Tiles.GetLength(1); j++)
 				{
-					Tiles[i, j] = new List<Box>();
+					Tiles[i, j] = new List<AABB>();
 				}
 			}
 		}
 
-		public void AddBox(Box axisAlignedBoundingBox)
+		public void Add(AABB aabb)
 		{
-			foreach (List<Box> boxes in GetCollisionTiles(axisAlignedBoundingBox))
+			AddToSpatialGrid(aabb);
+			aabb.PropertyWillChange += aabb_PropertyWillChange;
+			aabb.PropertyHasChange += aabb_PropertyHasChange;
+		}
+
+		protected void AddToSpatialGrid(AABB aabb)
+		{
+			foreach (List<AABB> boxes in GetCollisionTiles(aabb))
 			{
-				boxes.Add(axisAlignedBoundingBox);
+				boxes.Add(aabb);
 			}
 		}
 
-		public void RemoveBox(Box axisAlignedBoundingBox)
+		public void Remove(AABB aabb)
 		{
-			foreach (List<Box> boxes in GetCollisionTiles(axisAlignedBoundingBox))
+			RemoveFromSpatialGrid(aabb);
+			aabb.PropertyWillChange -= aabb_PropertyWillChange;
+			aabb.PropertyHasChange -= aabb_PropertyHasChange;
+		}
+
+		protected void RemoveFromSpatialGrid(AABB aabb)
+		{
+			foreach (List<AABB> boxes in GetCollisionTiles(aabb))
 			{
-				boxes.Remove(axisAlignedBoundingBox);
+				boxes.Remove(aabb);
 			}
 		}
 
-		public IEnumerable<Box> GetProbableSolidCollisions(Box mainBox)
+		private void aabb_PropertyWillChange(AABB sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			foreach (Box box in GetProbableCollisions(mainBox))
+			RemoveFromSpatialGrid(sender);
+		}
+
+		private void aabb_PropertyHasChange(AABB sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			AddToSpatialGrid(sender);
+		}		
+
+		public IEnumerable<AABB> GetProbableSolidCollisions(AABB aabb)
+		{
+			foreach (AABB box in GetProbableCollisions(aabb))
 			{
 				if (box.Solid)
 				{
@@ -60,15 +82,15 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public IEnumerable<Box> GetProbableCollisions(Box mainBox)
+		public IEnumerable<AABB> GetProbableCollisions(AABB aabb)
 		{
-			List<Box> boxes = new List<Box>();
+			List<AABB> boxes = new List<AABB>();
 
-			foreach (List<Box> tiles in GetCollisionTiles(mainBox))
+			foreach (List<AABB> tiles in GetCollisionTiles(aabb))
 			{
-				foreach (Box box in tiles)
+				foreach (AABB box in tiles)
 				{
-					if (!boxes.Contains(box))
+					if ((aabb != box) && !boxes.Contains(box))
 					{
 						boxes.Add(box);
 					}
@@ -78,12 +100,12 @@ namespace MonoGameClassLibrary.Physics
 			return boxes;
 		}
 
-		protected IEnumerable<List<Box>> GetCollisionTiles(Box box)
+		protected IEnumerable<List<AABB>> GetCollisionTiles(AABB aabb)
 		{
-			int startingI = Math.Max((box.Left - 1) / TILE_SIZE, 0);
-			int endingI = Math.Min(box.Right / TILE_SIZE, Tiles.GetLength(0) - 1);
-			int startingJ = Math.Max((box.Top - 1) / TILE_SIZE, 0);
-			int endingJ = Math.Min(box.Bottom / TILE_SIZE, Tiles.GetLength(1) - 1);
+			int startingI = Math.Max((aabb.Rectangle.Left - 1) / TILE_SIZE, 0);
+			int endingI = Math.Min(aabb.Rectangle.Right / TILE_SIZE, Tiles.GetLength(0) - 1);
+			int startingJ = Math.Max((aabb.Rectangle.Top - 1) / TILE_SIZE, 0);
+			int endingJ = Math.Min(aabb.Rectangle.Bottom / TILE_SIZE, Tiles.GetLength(1) - 1);
 			for (int i = startingI; i <= endingI; i++)
 			{
 				for (int j = startingJ; j <= endingJ; j++)

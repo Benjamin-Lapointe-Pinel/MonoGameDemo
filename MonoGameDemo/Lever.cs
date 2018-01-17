@@ -10,37 +10,60 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public class Lever : CollisionBox
+	public class Lever : AABB
 	{
-		public delegate void SwitchedHandler(Lever sender, EventArgs e);
+		public delegate void SwitchedHandler(Lever sender);
+		public event SwitchedHandler Toggled;
 		public event SwitchedHandler SwitchedOn;
 		public event SwitchedHandler SwitchedOff;
 
 		protected Sprite sprite;
-		public bool State { get; protected set; }
+		public bool SwitchState { get; protected set; }
+		public TimeSpan StayOn { get; protected set; }
+		public TimeSpan Counter { get; protected set; }
 
-		public Lever(Game game, Point location, bool state = false)
-			: base(game, new Rectangle(location, new Point(32, 32)), false, false, false)
+		public Lever(Game game, Point location, TimeSpan stayOn, bool state = false)
+			: base(game, new Rectangle(location, new Point(32, 32)), false)
 		{
-			State = state;
+			SwitchState = state;
+			StayOn = stayOn;
 			sprite = new Sprite(Game, Game.Content.Load<Texture2D>("lever"));
 			sprite.SourceRectangle.Width = 32;
 
 			OnCollision += Lever_OnCollision;
 		}
 
-		private void Lever_OnCollision(CollisionBox sender, CollisionEventArgs e)
+		private void Lever_OnCollision(AABB sender, CollisionEventArgs e)
 		{
-			if ((!State) && (e.Box is Character))
+			if (e.CollidedWith is Character)
 			{
-				State = true;
-				SwitchedOn?.Invoke(this, EventArgs.Empty);
+				SwitchState = true;
+				Counter = TimeSpan.Zero;
+
+				SwitchedOn?.Invoke(this);
+				Toggled?.Invoke(this);
+			}
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			if (SwitchState)
+			{
+				Counter += gameTime.ElapsedGameTime;
+
+				if (Counter > StayOn)
+				{
+					SwitchState = false;
+
+					SwitchedOff?.Invoke(this);
+					Toggled?.Invoke(this);
+				}
 			}
 		}
 
 		public override void Draw(GameTime gameTime)
 		{
-			if (State)
+			if (SwitchState)
 			{
 				sprite.SourceRectangle.X = 32;
 			}

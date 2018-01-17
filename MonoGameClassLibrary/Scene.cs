@@ -12,7 +12,8 @@ namespace MonoGameClassLibrary
 	public class Scene
 	{
 		protected MainGame MainGame;
-		protected SortedList<int, GameComponent> Components;
+		protected SortedList<int, IUpdateable> Updatables;
+		protected SortedList<int, IDrawable> Drawables;
 
 		public Camera Camera { get; protected set; }
 		public PhysicsEngine PhysicsEngine { get; protected set; }
@@ -21,20 +22,47 @@ namespace MonoGameClassLibrary
 		{
 			MainGame = mainGame;
 
-			Components = new SortedList<int, GameComponent>(new DuplicateKeyComparer<int>());
+			Updatables = new SortedList<int, IUpdateable>(new DuplicateKeyComparer<int>());
+			Drawables = new SortedList<int, IDrawable>(new DuplicateKeyComparer<int>());
 
 			Camera = new Camera(MainGame);
 			PhysicsEngine = new PhysicsEngine(MainGame, width, height);
 		}
 
-		public void AddComponent(GameComponent component)
+		public void AddToScene(IUpdateable component)
 		{
-			Components.Add(component.UpdateOrder, component);
+			if (component is AABB)
+			{
+				PhysicsEngine.Add(component as AABB);
+			}
+			else
+			{
+				Updatables.Add(component.UpdateOrder, component);
+			}
+
+			if (component is IDrawable)
+			{
+				IDrawable drawable = component as IDrawable;
+				Drawables.Add(drawable.DrawOrder, drawable);
+			}
 		}
 
-		public void RemoveComponent(GameComponent component)
+		public void RemoveFromScene(IUpdateable component)
 		{
-			Components.Remove(Components.IndexOfValue(component));
+			if (component is AABB)
+			{
+				PhysicsEngine.Remove(component as AABB);
+			}
+			else
+			{
+				Updatables.Remove(Updatables.IndexOfValue(component));
+			}
+
+			if (component is IDrawable)
+			{
+				IDrawable drawable = component as IDrawable;
+				Drawables.Remove(Drawables.IndexOfValue(drawable));
+			}
 		}
 
 		protected void Exit()
@@ -44,7 +72,12 @@ namespace MonoGameClassLibrary
 
 		public virtual void Update(GameTime gameTime)
 		{
-			PhysicsEngine.Update(gameTime, Components.Values);
+			foreach (IUpdateable updatable in Updatables.Values)
+			{
+				updatable.Update(gameTime);
+			}
+			
+			PhysicsEngine.Update(gameTime);
 		}
 
 		public virtual void Draw(GameTime gameTime)
@@ -52,50 +85,15 @@ namespace MonoGameClassLibrary
 			MainGame.GraphicsDevice.Clear(Color.Transparent);
 			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.Transform);
 
-			foreach (GameComponent component in Components.Values)
+			foreach (IDrawable drawable in Drawables.Values)
 			{
-				if (component is DrawableGameComponent)
-				{
-					(component as DrawableGameComponent).Draw(gameTime);
-				}
+				drawable.Draw(gameTime);
 			}
 
 #if DEBUG
 			PhysicsEngine.Draw(gameTime);
 #endif
 			MainGame.SpriteBatch.End();
-		}
-	}
-
-	public class Drawable : Updatable
-	{
-		public int DrawOrder;
-
-		public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime) { }
-	}
-
-	public class Updatable
-	{
-		public int UpdateOrder;
-
-		public virtual void EntityUpdate(GameTime gameTime) { }
-	}
-
-	//https://stackoverflow.com/a/21886340
-	public class DuplicateKeyComparer<TKey> : IComparer<TKey> where TKey : IComparable
-	{
-		public int Compare(TKey x, TKey y)
-		{
-			int result = x.CompareTo(y);
-
-			if (result == 0)
-			{
-				return -1;
-			}
-			else
-			{
-				return result;
-			}
 		}
 	}
 }

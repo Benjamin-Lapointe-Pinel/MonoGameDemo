@@ -23,7 +23,7 @@ namespace MonoGameDemo
 			Sprite background = new Sprite(MainGame, DrawHelper.Pixel);
 			background.Color = Color.CornflowerBlue;
 			background.DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.Width, PhysicsEngine.Height);
-			AddComponent(background);
+			AddToScene(background);
 
 			constructLevel();
 
@@ -33,15 +33,15 @@ namespace MonoGameDemo
 			animationSheet = AnimationSheetFactory(PlayerTexture);
 			player2 = new Character(MainGame, animationSheet, new Rectangle(256, 128, 64, 64));
 
-			AddComponent(player1);
-			AddComponent(player2);
+			AddToScene(player1);
+			AddToScene(player2);
 
 			//Test de performance
 			for (int i = 0; i < 50; i++)
 			{
 				//animationSheet = AnimationSheetFactory(PlayerTexture);
 				//Character character = new Character(MainGame, animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
-				//AddComponent(character);
+				//AddToScene(character);
 			}
 		}
 
@@ -77,9 +77,9 @@ namespace MonoGameDemo
 			
 			base.Update(gameTime);
 
-			Camera.Center = player1.Center;
+			Camera.Center = player1.Rectangle.Center;
 
-			if (player1.Location.Y > PhysicsEngine.SpatialGrid.Height)
+			if (player1.Location.Y > PhysicsEngine.Height)
 			{
 				Exit();
 			}
@@ -88,38 +88,39 @@ namespace MonoGameDemo
 		protected void constructLevel()
 		{
 			DebugPlatform plateform = new DebugPlatform(MainGame, new Rectangle(0, 1000, 10000, 20), Color.SandyBrown);
-			AddComponent(plateform);
+			AddToScene(plateform);
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(0, 0, 20, 1000), Color.SandyBrown);
-			AddComponent(plateform);
+			AddToScene(plateform);
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(500, 800, 20, 136), Color.SandyBrown);
-			AddComponent(plateform);
+			AddToScene(plateform);
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(500, 800, 100, 20), Color.SandyBrown);
-			AddComponent(plateform);
+			AddToScene(plateform);
 
 			int i = 0;
 			for (; i < 5; i++)
 			{
 				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (63 + 20)), 800, 20, 20), Color.Magenta);
-				AddComponent(plateform);
+				AddToScene(plateform);
 			}
 			for (; i < 10; i++)
 			{
 				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (64 + 20)), 800, 20, 20), Color.Green);
-				AddComponent(plateform);
+				AddToScene(plateform);
 			}
 
 			plateform = new DebugPlatform(MainGame, new Rectangle(1500, 0, 20, 936), Color.SandyBrown);
-			AddComponent(plateform);
+			AddToScene(plateform);
 
 			Door door = new Door(MainGame, new Point(1500, 936));
-			AddComponent(door);
+			AddToScene(door);
 
-			Lever lever = new Lever(MainGame, new Point(1350, 770));
+			Lever lever = new Lever(MainGame, new Point(1350, 768), TimeSpan.FromSeconds(2));
 			lever.SwitchedOn += door.Open;
-			AddComponent(lever);
+			lever.SwitchedOff += door.Close;
+			AddToScene(lever);
 		}
 
 		private AnimationSheet AnimationSheetFactory(Texture2D texture2D)
