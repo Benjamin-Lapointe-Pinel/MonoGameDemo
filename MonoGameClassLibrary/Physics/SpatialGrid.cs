@@ -31,44 +31,36 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public void Add(AABB aabb)
+		public List<AABB> Add(AABB aabb)
 		{
-			AddToSpatialGrid(aabb);
-			aabb.PropertyChanging += aabb_PropertyChanging;
-			aabb.PropertyChanged += aabb_PropertyChanged;
-		}
+			List<AABB> collisions = new List<AABB>();
 
-		protected void AddToSpatialGrid(AABB aabb)
-		{
-			foreach (List<AABB> boxes in GetCollisionTiles(aabb))
+			foreach (List<AABB> tile in GetCollisionTiles(aabb))
 			{
-				boxes.Add(aabb);
+				foreach (AABB box in tile)
+				{
+					collisions.Add(box);
+				}
+				tile.Add(aabb);
 			}
+
+			return collisions;
 		}
 
-		public void Remove(AABB aabb)
+		public List<AABB> Remove(AABB aabb)
 		{
-			RemoveFromSpatialGrid(aabb);
-			aabb.PropertyChanging -= aabb_PropertyChanging;
-			aabb.PropertyChanged -= aabb_PropertyChanged;
-		}
+			List<AABB> collisions = new List<AABB>();
 
-		protected void RemoveFromSpatialGrid(AABB aabb)
-		{
-			foreach (List<AABB> boxes in GetCollisionTiles(aabb))
+			foreach (List<AABB> tile in GetCollisionTiles(aabb))
 			{
-				boxes.Remove(aabb);
+				foreach (AABB box in tile)
+				{
+					collisions.Add(box);
+				}
+				tile.Remove(aabb);
 			}
-		}
 
-		private void aabb_PropertyChanging(AABB sender, System.ComponentModel.PropertyChangingEventArgs e)
-		{
-			RemoveFromSpatialGrid(sender);
-		}
-
-		private void aabb_PropertyChanged(AABB sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			AddToSpatialGrid(sender);
+			return collisions;
 		}		
 
 		public IEnumerable<AABB> GetProbableSolidCollisions(AABB aabb)

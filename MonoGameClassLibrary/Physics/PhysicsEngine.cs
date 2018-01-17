@@ -26,20 +26,38 @@ namespace MonoGameClassLibrary.Physics
 
 		public void Add(AABB aabb)
 		{
-			SpatialGrid.Add(aabb);
 			aabbs.Add(aabb.UpdateOrder, aabb);
+
+			SpatialGrid.Add(aabb);
+
+			aabb.PropertyChanging += aabb_PropertyChanging;
+			aabb.PropertyChanged += aabb_PropertyChanged;
 		}
 
 		public void Remove(AABB aabb)
 		{
-			SpatialGrid.Remove(aabb);
 			aabbs.RemoveAt(aabbs.IndexOfValue(aabb));
+
+			SpatialGrid.Remove(aabb);
+
+			aabb.PropertyChanging -= aabb_PropertyChanging;
+			aabb.PropertyChanged -= aabb_PropertyChanged;
 		}
 
 		public override void Update(GameTime gameTime)
 		{
 			UpdatePositions(gameTime);
 			ResolveCollisions();//Pourrait se faire par évenement
+		}
+
+		private void aabb_PropertyChanging(AABB sender, PropertyChangingEventArgs e)
+		{
+			SpatialGrid.Remove(sender);
+		}
+
+		private void aabb_PropertyChanged(AABB sender, PropertyChangedEventArgs e)
+		{
+			SpatialGrid.Add(sender);
 		}
 
 		private void ResolveCollisions()
@@ -96,12 +114,15 @@ namespace MonoGameClassLibrary.Physics
 		//TODO collision le long du mouvement
 		protected void PreciseMovement(GameTime gameTime, Box box)
 		{
+			box.PropertyChanging -= aabb_PropertyChanging;
+			box.PropertyChanged -= aabb_PropertyChanged;
+
 			int steps = 1;
 
 			float maxSpeed = SpatialGrid.TILE_SIZE;
-			if (box.PreciseMovement)//???
+			if (box.PreciseMovement)
 			{
-				maxSpeed = Math.Min(box.Width, box.Height);
+				//maxSpeed = Math.Min(box.Width, box.Height);//???
 			}
 			if (box.Speed.Length() > maxSpeed)
 			{
@@ -131,6 +152,9 @@ namespace MonoGameClassLibrary.Physics
 				}
 			}
 			CollisionHelper.StopSpeed(box, SpatialGrid);
+
+			box.PropertyChanging += aabb_PropertyChanging;
+			box.PropertyChanged += aabb_PropertyChanged;
 		}
 
 		public override void Draw(GameTime gameTime)

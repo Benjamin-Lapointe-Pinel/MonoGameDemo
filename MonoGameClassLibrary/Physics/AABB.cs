@@ -61,6 +61,8 @@ namespace MonoGameClassLibrary.Physics
 		public float Bottom { get { return Top + Height; } }
 		public bool Solid { get; set; }
 
+		public Vector2 OldLocation { get; protected set; }
+		public Vector2 OldSize { get; protected set; }
 		public Rectangle Rectangle
 		{
 			get
@@ -71,6 +73,7 @@ namespace MonoGameClassLibrary.Physics
 			set
 			{
 				PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
+				OldSize = Size;
 				x = value.X;
 				y = value.Y;
 				width = value.Width;
@@ -88,6 +91,7 @@ namespace MonoGameClassLibrary.Physics
 			set
 			{
 				PropertyChanging?.Invoke(this, PropertyChangingEventArgsLocation);
+				OldLocation = Location;
 				x = value.X;
 				y = value.Y;
 				PropertyChanged?.Invoke(this, PropertyChangedEventArgsLocation);
@@ -103,6 +107,7 @@ namespace MonoGameClassLibrary.Physics
 			set
 			{
 				PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
+				OldSize = Size;
 				width = value.X;
 				height = value.Y;
 				PropertyChanged?.Invoke(this, PropertyChangedEventArgsSize);
@@ -244,6 +249,7 @@ namespace MonoGameClassLibrary.Physics
 		public void Inflate(float horizontalAmount, float verticalAmount)
 		{
 			PropertyChanging?.Invoke(this, PropertyChangingEventArgsSize);
+			OldSize = Size;
 			x -= horizontalAmount;
 			y -= verticalAmount;
 			width += horizontalAmount * 2;

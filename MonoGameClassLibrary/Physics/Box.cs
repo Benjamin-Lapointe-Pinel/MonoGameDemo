@@ -33,7 +33,10 @@ namespace MonoGameClassLibrary.Physics
 
 		public void UpdateLocation(GameTime gameTime)
 		{
-			Location += Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+			if (Speed != Vector2.Zero) //Don't trigger PropertyChanged event needlessly
+			{
+				Location += Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+			}
 		}
 
 		public void UpdateSpeed(GameTime gameTime)
