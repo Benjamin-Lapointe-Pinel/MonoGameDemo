@@ -12,8 +12,8 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public Dictionary<AABB, CollisionDirection> Collisions { get; protected set; }
 
-		public SmartBox(Game game, Rectangle rectangle, bool solid = false, bool interactWithSolid = false, bool preciseCollision = false)
-			: base(game, rectangle, solid, interactWithSolid, preciseCollision)
+		public SmartBox(Game game, Rectangle rectangle, bool solid = false, bool interactWithSolid = false)
+			: base(game, rectangle, solid, interactWithSolid)
 		{
 			Collisions = new Dictionary<AABB, CollisionDirection>();
 
@@ -21,7 +21,7 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		public SmartBox(SmartBox box)
-			: this(box.Game, box.Rectangle, box.Solid, box.InteractWithSolid, box.PreciseMovement)
+			: this(box.Game, box.Rectangle, box.Solid, box.InteractWithSolid)
 		{
 		}
 

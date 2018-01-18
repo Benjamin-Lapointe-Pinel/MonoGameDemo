@@ -67,8 +67,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			get
 			{
-				return new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
-				//return new Rectangle((int)Math.Round(X, 0), (int)Math.Round(Y, 0), (int)Math.Round(Width, 0), (int)Math.Round(Height, 0));
+				return new Rectangle((int)Math.Round(X, 0), (int)Math.Round(Y, 0), (int)Math.Round(Width, 0), (int)Math.Round(Height, 0));
 			}
 			set
 			{

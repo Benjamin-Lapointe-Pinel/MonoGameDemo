@@ -53,22 +53,18 @@ namespace MonoGameClassLibrary.Physics
 					Box box = aabb as Box;
 					box.UpdateSpeed(gameTime);
 					box.Update(gameTime);
-					if (box.PreciseMovement)
-					{
-						SpatialGrid.Remove(box);
-						PreciseMovement(gameTime, box);
-						SpatialGrid.Add(box);
-					}
-					else
-					{
-						box.UpdateLocation(gameTime);
-					}
+					PreciseMovement(gameTime, box);
 				}
 				else
 				{
 					aabb.Update(gameTime);
 				}
 			}
+		}
+
+		private void aabb_PropertyChanging(AABB sender, PropertyChangingEventArgs e)
+		{
+			SpatialGrid.Remove(sender);
 		}
 
 		private void aabb_PropertyChanged(AABB sender, PropertyChangedEventArgs e)
@@ -80,11 +76,6 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private void aabb_PropertyChanging(AABB sender, PropertyChangingEventArgs e)
-		{
-			SpatialGrid.Remove(sender);
-		}
-
 		//BUG : résolution de collision de deux objets qui bougent, pas précis
 		//TODO collision le long du mouvement
 		protected void PreciseMovement(GameTime gameTime, Box box)
@@ -94,11 +85,8 @@ namespace MonoGameClassLibrary.Physics
 
 			int steps = 1;
 
-			float maxSpeed = SpatialGrid.TILE_SIZE;
-			if (box.PreciseMovement)
-			{
-				maxSpeed = Math.Min(box.Width, box.Height);
-			}
+			//float maxSpeed = SpatialGrid.TILE_SIZE;
+			float maxSpeed = Math.Min(box.Width, box.Height);
 			if (box.Speed.Length() > maxSpeed)
 			{
 				steps = (int)Math.Ceiling(box.Speed.Length() / maxSpeed);

@@ -37,11 +37,11 @@ namespace MonoGameDemo
 			//AddToScene(player2);
 
 			//Test de performance
-			for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 200; i++)
 			{
-				animationSheet = AnimationSheetFactory(PlayerTexture);
-				Character character = new Character(MainGame, animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
-				AddToScene(character);
+				//animationSheet = AnimationSheetFactory(PlayerTexture);
+				//Character character = new Character(MainGame, animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
+				//AddToScene(character);
 			}
 		}
 

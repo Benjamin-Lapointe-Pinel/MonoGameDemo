@@ -40,21 +40,18 @@ namespace MonoGameClassLibrary.Physics
 
 				box.Speed = oldSpeed;
 				StopSpeed(box, spatialGrid);
-				oldSpeed = box.Speed;
-
-				box.UpdateLocation(gameTime);
-
-				box.Speed = oldSpeed;
 
 				//New collision possible
-				if (oldSpeed == Vector2.Zero)
+				if (box.Speed != Vector2.Zero)
 				{
-					return true;
+					box.UpdateLocation(gameTime);
+					//Resolve new movement
+					box.Speed = oldSpeed;
+					return PhysicalCollisions(gameTime, box, spatialGrid);
 				}
 				else
 				{
-					//Resolve new movement
-					return PhysicalCollisions(gameTime, box, spatialGrid);
+					return true;
 				}
 			}
 
@@ -121,6 +118,7 @@ namespace MonoGameClassLibrary.Physics
 			return false;
 		}
 
+		//C'est sacré
 		public static void StopSpeed(Box box, SpatialGrid spatialGrid)
 		{
 			//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
