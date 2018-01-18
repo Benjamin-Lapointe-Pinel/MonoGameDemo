@@ -37,8 +37,7 @@ namespace MonoGameClassLibrary
 		}
 
 		protected virtual void MainGameBegin() { }
-
-		//private GameTime UpdateGameTime;
+		
 		protected override void Update(GameTime gameTime)
 		{
 			if (Scenes.Count > 0)
@@ -67,22 +66,22 @@ namespace MonoGameClassLibrary
 			if (Scenes.Count > 0)
 			{
 				Scenes.Peek().Draw(gameTime);
+#if DEBUG
+				SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Scenes.Peek().Camera.Transform);
+				Scenes.Peek().PhysicsEngine.Draw(new GameTime(gameTime.TotalGameTime, TargetElapsedTime));
+				SpriteBatch.End();
+
+				SpriteBatch.Begin();
+				int fps = (int)(1 / gameTime.ElapsedGameTime.TotalSeconds);
+				DrawHelper.DrawRectangle(SpriteBatch, new Rectangle(0, 0, 400, 100), new Color(Color.Gray, 0.25f));
+				DrawHelper.DrawText(SpriteBatch, fps.ToString(), new Vector2(0, 0), Color.Black);
+				SpriteBatch.End();
+#endif
 			}
 			else
 			{
 				Exit();
 			}
-#if DEBUG
-			SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Scenes.Peek().Camera.Transform);
-			Scenes.Peek().PhysicsEngine.Draw(new GameTime(gameTime.TotalGameTime, TargetElapsedTime));
-			SpriteBatch.End();
-
-			SpriteBatch.Begin();
-			int fps = (int)(1 / gameTime.ElapsedGameTime.TotalSeconds);
-			DrawHelper.DrawRectangle(SpriteBatch, new Rectangle(0, 0, 400, 100), new Color(Color.Gray, 0.25f));
-			DrawHelper.DrawText(SpriteBatch, fps.ToString(), new Vector2(0, 0), Color.Black);
-			SpriteBatch.End();
-#endif
 		}
 	}
 }

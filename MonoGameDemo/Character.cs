@@ -27,7 +27,7 @@ namespace MonoGameDemo
 
 			Acceleration.Y = 6000;
 
-			MaxRunningSpeed = 800;
+			MaxRunningSpeed = 1000;
 			RunningAcceleration = MaxRunningSpeed * 8;
 			JumpingSpeed = 1750;
 		}
