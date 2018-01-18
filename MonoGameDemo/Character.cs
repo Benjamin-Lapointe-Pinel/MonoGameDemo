@@ -53,6 +53,8 @@ namespace MonoGameDemo
 				Acceleration.X = 0;
 			}
 
+			animationSheet.Update(gameTime);
+
 			base.Update(gameTime);
 		}
 
@@ -71,8 +73,6 @@ namespace MonoGameDemo
 			{
 				animationSheet.CycleIndex = 0;
 			}
-
-			animationSheet.Update(gameTime);
 
 			animationSheet.DestinationRectangle = Rectangle;
 			animationSheet.Draw(gameTime);

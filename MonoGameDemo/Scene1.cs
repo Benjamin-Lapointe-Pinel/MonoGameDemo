@@ -37,10 +37,10 @@ namespace MonoGameDemo
 			//AddToScene(player2);
 
 			//Test de performance
-			for (int i = 0; i < 60; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				//animationSheet = AnimationSheetFactory(PlayerTexture);
-				//Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
+				//Character character = new Character(MainGame, animationSheet, 256 + (i * 16), 128, 64, 64);
 				//AddToScene(character);
 				//Lever lever = new Lever(MainGame, new Point(256 + (i * 32), 968), TimeSpan.FromSeconds(0.5));
 				//AddToScene(lever);

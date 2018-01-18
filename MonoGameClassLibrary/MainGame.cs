@@ -36,11 +36,10 @@ namespace MonoGameClassLibrary
 		{
 			if (Scenes.Count > 0)
 			{
-				if (IsFixedTimeStep)
+				if (!gameTime.IsRunningSlowly)
 				{
-					gameTime = new GameTime(gameTime.TotalGameTime, TimeSpan.FromSeconds(1.0 / 60.0));
+					Scenes.Peek().Update(gameTime);
 				}
-				Scenes.Peek().Update(gameTime);
 			}
 			else
 			{
@@ -52,10 +51,6 @@ namespace MonoGameClassLibrary
 		{
 			if (Scenes.Count > 0)
 			{
-				if (IsFixedTimeStep)
-				{
-					gameTime = new GameTime(gameTime.TotalGameTime, TimeSpan.FromSeconds(1.0 / 60.0));
-				}
 				Scenes.Peek().Draw(gameTime);
 			}
 			else
