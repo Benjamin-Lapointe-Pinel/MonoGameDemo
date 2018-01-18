@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameClassLibrary.Physics;
+using System;
 using System.Collections.Generic;
 
 namespace MonoGameClassLibrary
@@ -13,7 +14,7 @@ namespace MonoGameClassLibrary
 
 		public MainGame()
 		{
-			IsFixedTimeStep = false;
+			IsFixedTimeStep = true;
 			Content.RootDirectory = "Content";
 			Graphics = new GraphicsDeviceManager(this);
 			Scenes = new Stack<Scene>();
@@ -35,6 +36,10 @@ namespace MonoGameClassLibrary
 		{
 			if (Scenes.Count > 0)
 			{
+				if (IsFixedTimeStep)
+				{
+					gameTime = new GameTime(gameTime.TotalGameTime, TimeSpan.FromSeconds(1.0 / 60.0));
+				}
 				Scenes.Peek().Update(gameTime);
 			}
 			else
@@ -47,6 +52,10 @@ namespace MonoGameClassLibrary
 		{
 			if (Scenes.Count > 0)
 			{
+				if (IsFixedTimeStep)
+				{
+					gameTime = new GameTime(gameTime.TotalGameTime, TimeSpan.FromSeconds(1.0 / 60.0));
+				}
 				Scenes.Peek().Draw(gameTime);
 			}
 			else
