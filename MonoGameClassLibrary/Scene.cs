@@ -90,9 +90,6 @@ namespace MonoGameClassLibrary
 				drawable.Draw(gameTime);
 			}
 
-#if DEBUG
-			PhysicsEngine.Draw(gameTime);
-#endif
 			MainGame.SpriteBatch.End();
 		}
 	}
