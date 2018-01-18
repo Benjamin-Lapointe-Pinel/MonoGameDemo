@@ -17,6 +17,8 @@ namespace MonoGameClassLibrary
 			IsFixedTimeStep = true;
 			Content.RootDirectory = "Content";
 			Graphics = new GraphicsDeviceManager(this);
+			Graphics.SynchronizeWithVerticalRetrace = false;
+
 			Scenes = new Stack<Scene>();
 		}
 
