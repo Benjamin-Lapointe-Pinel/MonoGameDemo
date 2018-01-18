@@ -11,7 +11,7 @@ namespace MonoGameClassLibrary.Physics
 	public class SpatialGrid : DrawableGameComponent
 	{
 		public static readonly int TILE_SIZE = 128;
-		
+
 		public List<AABB>[,] Tiles { get; protected set; }
 		public int TilesWidth { get { return Tiles.GetLength(0); } }
 		public int TilesHeight { get { return Tiles.GetLength(1); } }
@@ -31,37 +31,21 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public List<AABB> Add(AABB aabb)
+		public void Add(AABB aabb)
 		{
-			List<AABB> collisions = new List<AABB>();
-
 			foreach (List<AABB> tile in GetCollisionTiles(aabb))
 			{
-				foreach (AABB box in tile)
-				{
-					collisions.Add(box);
-				}
 				tile.Add(aabb);
 			}
-
-			return collisions;
 		}
 
-		public List<AABB> Remove(AABB aabb)
+		public void Remove(AABB aabb)
 		{
-			List<AABB> collisions = new List<AABB>();
-
 			foreach (List<AABB> tile in GetCollisionTiles(aabb))
 			{
-				foreach (AABB box in tile)
-				{
-					collisions.Add(box);
-				}
 				tile.Remove(aabb);
 			}
-
-			return collisions;
-		}		
+		}
 
 		public IEnumerable<AABB> GetProbableSolidCollisions(AABB aabb)
 		{

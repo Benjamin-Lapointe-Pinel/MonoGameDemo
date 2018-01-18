@@ -29,7 +29,7 @@ namespace MonoGameDemo
 
 			Texture2D PlayerTexture = MainGame.Content.Load<Texture2D>("playerSheet");
 			AnimationSheet animationSheet = AnimationSheetFactory(PlayerTexture);
-			player1 = new Character(MainGame, animationSheet, new Rectangle(128, 128, 64, 64));
+			player1 = new Character(MainGame, animationSheet, 128, 128, 64, 64);
 			animationSheet = AnimationSheetFactory(PlayerTexture);
 			//player2 = new Character(MainGame, animationSheet, new Rectangle(256, 128, 64, 64));
 
@@ -37,11 +37,13 @@ namespace MonoGameDemo
 			//AddToScene(player2);
 
 			//Test de performance
-			for (int i = 0; i < 200; i++)
+			for (int i = 0; i < 50; i++)
 			{
-				//animationSheet = AnimationSheetFactory(PlayerTexture);
-				//Character character = new Character(MainGame, animationSheet, new Rectangle(256 + (i * 16), 128, 64, 64));
-				//AddToScene(character);
+				animationSheet = AnimationSheetFactory(PlayerTexture);
+				Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
+				AddToScene(character);
+				Lever lever = new Lever(MainGame, new Point(256 + (i * 32), 968), TimeSpan.FromSeconds(0.5));
+				AddToScene(lever);
 			}
 		}
 
@@ -87,31 +89,31 @@ namespace MonoGameDemo
 
 		protected void constructLevel()
 		{
-			DebugPlatform plateform = new DebugPlatform(MainGame, new Rectangle(0, 1000, 10000, 20), Color.SandyBrown);
+			DebugPlatform plateform = new DebugPlatform(MainGame, 0, 1000, 10000, 20, Color.SandyBrown);
 			AddToScene(plateform);
 
-			plateform = new DebugPlatform(MainGame, new Rectangle(0, 0, 20, 1000), Color.SandyBrown);
+			plateform = new DebugPlatform(MainGame, 0, 0, 20, 1000, Color.SandyBrown);
 			AddToScene(plateform);
 
-			plateform = new DebugPlatform(MainGame, new Rectangle(500, 800, 20, 136), Color.SandyBrown);
+			plateform = new DebugPlatform(MainGame, 500, 800, 20, 136, Color.SandyBrown);
 			AddToScene(plateform);
 
-			plateform = new DebugPlatform(MainGame, new Rectangle(500, 800, 100, 20), Color.SandyBrown);
+			plateform = new DebugPlatform(MainGame, 500, 800, 100, 20, Color.SandyBrown);
 			AddToScene(plateform);
 
 			int i = 0;
 			for (; i < 5; i++)
 			{
-				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (63 + 20)), 800, 20, 20), Color.Magenta);
+				plateform = new DebugPlatform(MainGame, (600 + (i * (63 + 20))), 800, 20, 20, Color.Magenta);
 				AddToScene(plateform);
 			}
 			for (; i < 10; i++)
 			{
-				plateform = new DebugPlatform(MainGame, new Rectangle(600 + (i * (64 + 20)), 800, 20, 20), Color.Green);
+				plateform = new DebugPlatform(MainGame, 600 + (i * (64 + 20)), 800, 20, 20, Color.Green);
 				AddToScene(plateform);
 			}
 
-			plateform = new DebugPlatform(MainGame, new Rectangle(1500, 0, 20, 936), Color.SandyBrown);
+			plateform = new DebugPlatform(MainGame, 1500, 0, 20, 936, Color.SandyBrown);
 			AddToScene(plateform);
 
 			Door door = new Door(MainGame, new Point(1500, 936));

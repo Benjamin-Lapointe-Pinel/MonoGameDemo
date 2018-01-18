@@ -20,8 +20,8 @@ namespace MonoGameDemo
 		protected float JumpingSpeed;
 		protected float MaxRunningSpeed;
 
-		public Character(Game game, AnimationSheet animationSheet, Rectangle rectangle)
-			: base(game, rectangle, false, true)
+		public Character(Game game, AnimationSheet animationSheet, float x, float y, float width, float height)
+			: base(game, x, y, width, height, false, true, Math.Min(width, height))
 		{
 			this.animationSheet = animationSheet;
 

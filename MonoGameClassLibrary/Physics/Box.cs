@@ -10,14 +10,16 @@ namespace MonoGameClassLibrary.Physics
 	public class Box : AABB
 	{
 		public bool InteractWithSolid { get; set; }
+		public float MovementIncrement { get; set; }
 
 		public Vector2 Acceleration;
 		public Vector2 Speed;
 
-		public Box(Game game, Rectangle rectangle, bool solid = false, bool interactWithSolid = false)
-			: base(game, rectangle, solid)
+		public Box(Game game, float x, float y, float width, float height, bool solid = false, bool interactWithSolid = false, float movementIncrement = 0)
+			: base(game, x, y, width, height, solid)
 		{
 			this.InteractWithSolid = interactWithSolid;
+			this.MovementIncrement = movementIncrement;
 
 			Acceleration = new Vector2(0, 0);
 			Speed = new Vector2(0, 0);
@@ -25,21 +27,41 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		public Box(Box box)
-			: this(box.Game, box.Rectangle, box.Solid, box.InteractWithSolid)
+			: this(box.Game, box.X, box.Y, box.Width, box.Height, box.Solid, box.InteractWithSolid, box.MovementIncrement)
 		{
+		}
+
+		public void UpdateSpeed(GameTime gameTime)
+		{
+			Speed += Acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds;
 		}
 
 		public void UpdateLocation(GameTime gameTime)
 		{
 			if (Speed != Vector2.Zero) //Don't trigger PropertyChanged event needlessly
 			{
-				Location += Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-			}
-		}
+				int steps = 1;
+				GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime);
 
-		public void UpdateSpeed(GameTime gameTime)
-		{
-			Speed += Acceleration * (float)gameTime.ElapsedGameTime.TotalSeconds;
+				if (MovementIncrement > 0)
+				{
+					float SpeedLength = (Speed * (float)relativeGameTime.ElapsedGameTime.TotalSeconds).Length();
+					if (SpeedLength > MovementIncrement)
+					{
+						steps = (int)Math.Ceiling(SpeedLength / MovementIncrement);
+						relativeGameTime.ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps);
+					}
+				}
+
+				for (int i = 0; i < steps; i++)
+				{
+					Location += Speed * (float)relativeGameTime.ElapsedGameTime.TotalSeconds;
+					if (Speed == Vector2.Zero)
+					{
+						break;
+					}
+				}
+			}
 		}
 	}
 }

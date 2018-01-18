@@ -53,7 +53,8 @@ namespace MonoGameClassLibrary.Physics
 					Box box = aabb as Box;
 					box.UpdateSpeed(gameTime);
 					box.Update(gameTime);
-					PreciseMovement(gameTime, box);
+					box.UpdateLocation(gameTime);
+					CollisionHelper.StopSpeed(box, SpatialGrid);
 				}
 				else
 				{
@@ -69,67 +70,27 @@ namespace MonoGameClassLibrary.Physics
 
 		private void aabb_PropertyChanged(AABB sender, PropertyChangedEventArgs e)
 		{
-			IEnumerable<AABB> aabbs = SpatialGrid.Add(sender);
-			foreach (AABB aabb in aabbs)
+			if (e.PropertyName == "Size")
+			{
+				//Classique resolve
+			}
+			else if (e.PropertyName == "Location")
+			{
+				CollisionHelper.ResolveMovementPhysics(sender, SpatialGrid);
+			}
+
+			foreach (AABB aabb in SpatialGrid.GetProbableCollisions(sender))
 			{
 				sender.CollisionNotification(aabb);
 			}
-		}
 
-		//BUG : résolution de collision de deux objets qui bougent, pas précis
-		//TODO collision le long du mouvement
-		protected void PreciseMovement(GameTime gameTime, Box box)
-		{
-			box.PropertyChanging -= aabb_PropertyChanging;
-			box.PropertyChanged -= aabb_PropertyChanged;
-
-			int steps = 1;
-
-			//float maxSpeed = SpatialGrid.TILE_SIZE;
-			float maxSpeed = Math.Min(box.Width, box.Height);
-			if (box.Speed.Length() > maxSpeed)
-			{
-				steps = (int)Math.Ceiling(box.Speed.Length() / maxSpeed);
-			}
-
-			GameTime relativeGameTime = new GameTime(gameTime.TotalGameTime, gameTime.ElapsedGameTime)
-			{
-				ElapsedGameTime = new TimeSpan(gameTime.ElapsedGameTime.Ticks / steps)
-			};
-
-			for (int i = 0; i < steps; i++)
-			{
-				box.UpdateLocation(relativeGameTime);
-
-				if (CollisionHelper.Intersect(box, SpatialGrid.GetProbableCollisions(box)))
-				{
-					bool stopped = false;
-					if (box.InteractWithSolid)
-					{
-						stopped = CollisionHelper.PhysicalCollisions(relativeGameTime, box, SpatialGrid);
-					}
-
-					foreach (AABB collision in SpatialGrid.GetProbableCollisions(box))
-					{
-						box.CollisionNotification(collision);
-					}
-
-					if (stopped)
-					{
-						break;
-					}
-				}
-			}
-			CollisionHelper.StopSpeed(box, SpatialGrid);
-
-			box.PropertyChanging += aabb_PropertyChanging;
-			box.PropertyChanged += aabb_PropertyChanged;
+			SpatialGrid.Add(sender);
 		}
 
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
-			foreach (AABB aabb in SpatialGrid.GetProbableCollisions(new AABB(null, new Rectangle(0, 0, Width, Height))))
+			foreach (AABB aabb in SpatialGrid.GetProbableCollisions(new AABB(null, 0, 0, Width, Height)))
 			{
 				DrawHelper.DrawOutline(spriteBatch, aabb.Rectangle, Color.Black);
 

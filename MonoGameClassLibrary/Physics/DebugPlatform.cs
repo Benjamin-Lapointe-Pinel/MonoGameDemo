@@ -13,8 +13,8 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public Color Color { get; protected set; }
 
-		public DebugPlatform(Game game, Rectangle rectangle, Color color)
-			: base(game, rectangle, true)
+		public DebugPlatform(Game game, float x, float y, float width, float height, Color color)
+			: base(game, x, y, width, height, true)
 		{
 			this.Color = color;
 		}

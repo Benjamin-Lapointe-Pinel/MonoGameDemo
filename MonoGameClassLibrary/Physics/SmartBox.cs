@@ -8,12 +8,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGameClassLibrary.Physics
 {
+	//Je n'aime pas cette classe
 	public class SmartBox : Box
 	{
 		public Dictionary<AABB, CollisionDirection> Collisions { get; protected set; }
 
-		public SmartBox(Game game, Rectangle rectangle, bool solid = false, bool interactWithSolid = false)
-			: base(game, rectangle, solid, interactWithSolid)
+		public SmartBox(Game game, float x, float y, float width, float height, bool solid = false, bool interactWithSolid = false, float movementIncrement = 0)
+			: base(game, x, y, width, height, solid, interactWithSolid, movementIncrement)
 		{
 			Collisions = new Dictionary<AABB, CollisionDirection>();
 
@@ -21,7 +22,7 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		public SmartBox(SmartBox box)
-			: this(box.Game, box.Rectangle, box.Solid, box.InteractWithSolid)
+			: this(box.Game, box.X, box.Y, box.Width, box.Height, box.Solid, box.InteractWithSolid, box.MovementIncrement)
 		{
 		}
 

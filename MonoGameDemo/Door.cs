@@ -15,7 +15,7 @@ namespace MonoGameDemo
 		Sprite sprite;
 
 		public Door(Game game, Point location)
-			: base(game, new Rectangle(location, new Point(64, 64)), true)
+			: base(game, location.X, location.Y, 64, 64, true)
 		{
 			sprite = new Sprite(Game, Game.Content.Load<Texture2D>("door"));
 			sprite.DestinationRectangle.Width = 64;

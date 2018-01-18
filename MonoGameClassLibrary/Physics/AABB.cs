@@ -121,17 +121,18 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public AABB(Game game, Rectangle rectangle, bool solid = false)
+		public AABB(Game game, float x, float y, float width, float height, bool solid = false)
 			: base(game)
 		{
-			this.Rectangle = rectangle;
+			this.Location = new Vector2(x, y);
+			this.Size = new Vector2(width, height);
 			this.Solid = solid;
 
 			UpdateOrder = Int16.MaxValue;
 		}
 
 		public AABB(AABB aabb)
-			: this(aabb.Game, aabb.Rectangle, aabb.Solid)
+			: this(aabb.Game, aabb.X, aabb.Y, aabb.Width, aabb.Height, aabb.Solid)
 		{
 		}
 

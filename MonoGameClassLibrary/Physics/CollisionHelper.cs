@@ -8,54 +8,61 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary.Physics
 {
-
-	//TODO RELIRE
 	public static class CollisionHelper
 	{
-		public static bool PhysicalCollisions(GameTime gameTime, Box box, SpatialGrid spatialGrid)
+		public static void ResolveMovementPhysics(AABB aabb, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
-			if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
+			if (Intersect(aabb, spatialGrid.GetProbableSolidCollisions(aabb)))
 			{
-				Vector2 oldSpeed = box.Speed;
-				Rectangle OldRectangle = new Rectangle();
+				AABB aabbCopy = new AABB(aabb);
+				Vector2 start = aabb.Location;
+				Vector2 collisionEnd = aabb.OldLocation;
+				Vector2 movement = start - collisionEnd;
+				Vector2 movementCopy = movement;
+
 				//Tant que la collision n'est pas résolue
-				while (box.Rectangle != OldRectangle)
+				while (aabbCopy.Location != aabbCopy.OldLocation) //Pourrait être optimisé contre une perte de précision?
 				{
-					OldRectangle = box.Rectangle;
-					if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
+					if (Intersect(aabbCopy, spatialGrid.GetProbableSolidCollisions(aabbCopy)))
 					{
 						//Défait le mouvement qui créer la collion
-						box.Speed = Vector2.Negate(box.Speed);
-						box.UpdateLocation(gameTime);
-						box.Speed = Vector2.Negate(box.Speed);
+						aabbCopy.Offset(-movementCopy);
 					}
 					else
 					{
 						//Avance plus lentement vers la collion
-						box.Speed /= 2;
-						box.UpdateLocation(gameTime);
+						movementCopy /= 2;
+						aabbCopy.Offset(movementCopy);
 					}
 				}
 
-				box.Speed = oldSpeed;
-				StopSpeed(box, spatialGrid);
+				//Fin du mouvement
+				if (aabb is Box)
+				{
+					//movementCopy = movement - (start - aabbCopy.Location);
+					movementCopy = movement;
 
-				//New collision possible
-				if (box.Speed != Vector2.Zero)
-				{
-					box.UpdateLocation(gameTime);
-					//Resolve new movement
-					box.Speed = oldSpeed;
-					return PhysicalCollisions(gameTime, box, spatialGrid);
+					IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(new Box(aabb as Box));
+					if (((movement.X < 0) && (LeftCollision(aabbCopy, solids))) ||
+						((movement.X > 0) && ((RightCollision(aabbCopy, solids)))))
+					{
+						movementCopy.X = 0;
+					}
+					if (((movement.Y < 0) && (TopCollision(aabbCopy, solids))) ||
+						((movement.Y > 0) && (BottomCollision(aabbCopy, solids))))
+					{
+						movementCopy.Y = 0;
+					}
+
+					if (movementCopy != Vector2.Zero)
+					{
+						aabbCopy.Offset(movementCopy);
+						ResolveMovementPhysics(aabbCopy, spatialGrid);
+					}
 				}
-				else
-				{
-					return true;
-				}
+				aabb.Location = aabbCopy.Location;
 			}
-
-			return false;
 		}
 
 		public static bool Intersect(AABB main, IEnumerable<AABB> aabbs)

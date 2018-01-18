@@ -23,7 +23,7 @@ namespace MonoGameDemo
 		public TimeSpan Counter { get; protected set; }
 
 		public Lever(Game game, Point location, TimeSpan stayOn, bool state = false)
-			: base(game, new Rectangle(location, new Point(32, 32)), false)
+			: base(game, location.X, location.Y, 32, 32, false)
 		{
 			SwitchState = state;
 			StayOn = stayOn;
