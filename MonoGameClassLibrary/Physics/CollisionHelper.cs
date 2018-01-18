@@ -40,10 +40,10 @@ namespace MonoGameClassLibrary.Physics
 				//Fin du mouvement
 				if (aabb is Box)
 				{
-					//movementCopy = movement - (start - aabbCopy.Location);
+					//movementCopy = movement - (start - aabbCopy.Location); //???
 					movementCopy = movement;
 
-					IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(new Box(aabb as Box));
+					IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(aabbCopy);
 					if (((movement.X < 0) && (LeftCollision(aabbCopy, solids))) ||
 						((movement.X > 0) && ((RightCollision(aabbCopy, solids)))))
 					{
@@ -59,6 +59,10 @@ namespace MonoGameClassLibrary.Physics
 					{
 						aabbCopy.Offset(movementCopy);
 						ResolveMovementPhysics(aabbCopy, spatialGrid);
+					}
+					else
+					{
+						(aabb as Box).Speed = Vector2.Zero;
 					}
 				}
 				aabb.Location = aabbCopy.Location;
