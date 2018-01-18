@@ -16,7 +16,7 @@ namespace MonoGameClassLibrary
 		public MainGame()
 		{
 			IsFixedTimeStep = true;
-			SlowDownFactor = 4;
+			SlowDownFactor = 0;
 			Content.RootDirectory = "Content";
 			Graphics = new GraphicsDeviceManager(this)
 			{
