@@ -10,6 +10,31 @@ namespace MonoGameClassLibrary.Physics
 {
 	public static class CollisionHelper
 	{
+		public static void SetCollisionNotification(AABB sender, SpatialGrid spatialGrid)
+		{
+			AABB copy = new AABB(sender);
+			copy.Inflate(1, 1);
+			foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
+			{
+				if (copy.Intersects(aabb))
+				{
+					sender.CollisionNotification(aabb);
+				}
+			}
+			copy.Inflate(-1, -1);
+		}
+
+		public static void ResolveClassicCollision(AABB sender, SpatialGrid spatialGrid)
+		{
+			foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
+			{
+				if (aabb is Box)
+				{
+
+				}
+			}
+		}
+
 		public static void ResolveMovementPhysics(AABB aabb, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision

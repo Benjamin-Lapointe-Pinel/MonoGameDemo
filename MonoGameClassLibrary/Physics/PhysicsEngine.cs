@@ -79,10 +79,7 @@ namespace MonoGameClassLibrary.Physics
 				CollisionHelper.ResolveMovementPhysics(sender, SpatialGrid);
 			}
 
-			foreach (AABB aabb in SpatialGrid.GetProbableCollisions(sender))
-			{
-				sender.CollisionNotification(aabb);
-			}
+			CollisionHelper.SetCollisionNotification(sender, SpatialGrid);
 
 			SpatialGrid.Add(sender);
 		}

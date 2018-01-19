@@ -20,9 +20,11 @@ namespace MonoGameDemo
 		public Scene1(MainGame mainGame)
 			: base(mainGame, 5000, 5000)
 		{
-			Sprite background = new Sprite(MainGame, DrawHelper.Pixel);
-			background.Color = Color.CornflowerBlue;
-			background.DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.Width, PhysicsEngine.Height);
+			Sprite background = new Sprite(MainGame, DrawHelper.Pixel)
+			{
+				Color = Color.CornflowerBlue,
+				DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.Width, PhysicsEngine.Height)
+			};
 			AddToScene(background);
 
 			constructLevel();
@@ -64,6 +66,9 @@ namespace MonoGameDemo
 				player1.Jump();
 			}
 
+			Console.WriteLine(player1);
+			Console.WriteLine(player1.CollisionSide);
+
 			//if (keyboardState.IsKeyDown(Keys.Left))
 			//{
 			//	player2.WalkLeft();
@@ -76,7 +81,7 @@ namespace MonoGameDemo
 			//{
 			//	player2.Jump();
 			//}
-			
+
 			base.Update(gameTime);
 
 			Camera.Center = player1.Rectangle.Center;
