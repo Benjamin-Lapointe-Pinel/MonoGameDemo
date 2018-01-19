@@ -74,7 +74,7 @@ namespace MonoGameClassLibrary.Physics
 			{
 				CollisionHelper.ClassicCollision(sender, SpatialGrid);
 			}
-			else if (e.PropertyName == "Location")
+			else if (e.PropertyName == "Location") //Comment faire la différence entre un movement physique et une teleport?
 			{
 				CollisionHelper.MovementCollision(sender, SpatialGrid);
 			}

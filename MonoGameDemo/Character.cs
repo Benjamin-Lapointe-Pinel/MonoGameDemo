@@ -61,17 +61,20 @@ namespace MonoGameDemo
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
-			if (!SolidCollisionSide.HasFlag(CollisionDirection.Bottom))
+			if (SolidCollisionSide.HasFlag(CollisionDirection.Bottom) && Speed.Y >= 0)
 			{
-				animationSheet.CycleIndex = 2;
-			}
-			else if (Speed.X != 0)
-			{
-				animationSheet.CycleIndex = 1;
+				if (Speed.X != 0)
+				{
+					animationSheet.CycleIndex = 1;
+				}
+				else
+				{
+					animationSheet.CycleIndex = 0;
+				}
 			}
 			else
 			{
-				animationSheet.CycleIndex = 0;
+				animationSheet.CycleIndex = 2;
 			}
 
 			animationSheet.DestinationRectangle = Rectangle;

@@ -193,13 +193,13 @@ namespace MonoGameClassLibrary.Physics
 		{
 			//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
 			IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(box);
-			if (((box.Speed.X < 0) && (LeftCollision(box, solids))) ||
-				((box.Speed.X > 0) && ((RightCollision(box, solids)))))
+			if (((box.Speed.X <= 0) && (LeftCollision(box, solids))) ||
+				((box.Speed.X >= 0) && ((RightCollision(box, solids)))))
 			{
 				box.Speed.X = 0;
 			}
-			if (((box.Speed.Y < 0) && (TopCollision(box, solids))) ||
-				((box.Speed.Y > 0) && (BottomCollision(box, solids))))
+			if (((box.Speed.Y <= 0) && (TopCollision(box, solids))) ||
+				((box.Speed.Y >= 0) && (BottomCollision(box, solids))))
 			{
 				box.Speed.Y = 0;
 			}

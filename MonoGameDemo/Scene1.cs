@@ -39,7 +39,7 @@ namespace MonoGameDemo
 			//AddToScene(player2);
 
 			//Test de performance
-			for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 40; i++)
 			{
 				//animationSheet = AnimationSheetFactory(PlayerTexture);
 				//Character character = new Character(MainGame, animationSheet, 256 + (i * 16), 128, 64, 64);
@@ -67,7 +67,6 @@ namespace MonoGameDemo
 			}
 
 			Console.WriteLine(player1);
-			Console.WriteLine(player1.CollisionSide);
 
 			//if (keyboardState.IsKeyDown(Keys.Left))
 			//{
@@ -88,7 +87,7 @@ namespace MonoGameDemo
 
 			if (player1.Location.Y > PhysicsEngine.Height)
 			{
-				Exit();
+				player1.Location = new Vector2(256, 256);
 			}
 		}
 

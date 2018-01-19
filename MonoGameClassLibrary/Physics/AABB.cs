@@ -67,7 +67,8 @@ namespace MonoGameClassLibrary.Physics
 		{
 			get
 			{
-				return new Rectangle((int)Math.Round(X, 0), (int)Math.Round(Y, 0), (int)Math.Round(Width, 0), (int)Math.Round(Height, 0));
+				//return new Rectangle((int)Math.Round(X, 0), (int)Math.Round(Y, 0), (int)Math.Round(Width, 0), (int)Math.Round(Height, 0));
+				return new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
 			}
 			set
 			{
@@ -239,10 +240,10 @@ namespace MonoGameClassLibrary.Physics
 		public virtual bool Intersects(AABB value)
 		{
 			//return Rectangle.Intersects(value.Rectangle);
-			return value.Left < Right &&
-				   Left < value.Right &&
-				   value.Top < Bottom &&
-				   Top < value.Bottom;
+			return (int)value.Left < (int)Right &&
+				   (int)Left < (int)value.Right &&
+				   (int)value.Top < (int)Bottom &&
+				   (int)Top < (int)value.Bottom;
 		}
 
 		#region MonoGame Methods
