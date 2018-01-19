@@ -24,7 +24,7 @@ namespace MonoGameClassLibrary.Physics
 			copy.Inflate(-1, -1);
 		}
 
-		public static void ResolveClassicCollision(AABB sender, SpatialGrid spatialGrid)
+		public static void ClassicCollision(AABB sender, SpatialGrid spatialGrid)
 		{
 			if (sender.Solid)
 			{
@@ -35,14 +35,36 @@ namespace MonoGameClassLibrary.Physics
 						(sender.Intersects(aabb)))
 					{
 							Vector2 movement = sender.Center - aabb.Center;
-							AABB copy = ResolveCollision(aabb, movement, spatialGrid);
+							AABB copy = ResolveClassicCollision(aabb, movement, sender);
 							aabb.Location = copy.Location;
 					}
 				}
 			}
 		}
 
-		public static void ResolveMovementPhysics(AABB aabb, SpatialGrid spatialGrid)
+		private static AABB ResolveClassicCollision(AABB aabb, Vector2 movement, AABB sender)
+		{
+			AABB copy = new AABB(aabb);
+			//Tant que la collision n'est pas résolue
+			while (copy.Location != copy.OldLocation) //Pourrait être optimisé contre une perte de précision?
+			{
+				if (copy.Intersects(sender))
+				{
+					//Défait le mouvement qui créer la collion
+					copy.Offset(-movement);
+				}
+				else
+				{
+					//Avance plus lentement vers la collion
+					movement /= 2;
+					copy.Offset(movement);
+				}
+			}
+
+			return copy;
+		}
+
+		public static void MovementCollision(AABB aabb, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
 			if (Intersect(aabb, spatialGrid.GetProbableSolidCollisions(aabb)))
@@ -51,7 +73,7 @@ namespace MonoGameClassLibrary.Physics
 				Vector2 start = aabb.OldLocation;
 				Vector2 movement = end - start;
 
-				AABB copy = ResolveCollision(aabb, movement, spatialGrid);
+				AABB copy = ResolveMovementCollision(aabb, movement, spatialGrid);
 
 				//Fin du mouvement
 				if (aabb is Box)
@@ -73,7 +95,7 @@ namespace MonoGameClassLibrary.Physics
 					if (movement != Vector2.Zero)
 					{
 						copy.Offset(movement);
-						ResolveMovementPhysics(copy, spatialGrid);
+						MovementCollision(copy, spatialGrid);
 					}
 					else
 					{
@@ -84,7 +106,7 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private static AABB ResolveCollision(AABB aabb, Vector2 movement, SpatialGrid spatialGrid)
+		private static AABB ResolveMovementCollision(AABB aabb, Vector2 movement, SpatialGrid spatialGrid)
 		{
 			AABB copy = new AABB(aabb);
 			//Tant que la collision n'est pas résolue

@@ -72,11 +72,11 @@ namespace MonoGameClassLibrary.Physics
 		{
 			if (e.PropertyName == "Size")
 			{
-				CollisionHelper.ResolveClassicCollision(sender, SpatialGrid);
+				CollisionHelper.ClassicCollision(sender, SpatialGrid);
 			}
 			else if (e.PropertyName == "Location")
 			{
-				CollisionHelper.ResolveMovementPhysics(sender, SpatialGrid);
+				CollisionHelper.MovementCollision(sender, SpatialGrid);
 			}
 
 			CollisionHelper.SetCollisionNotification(sender, SpatialGrid);
