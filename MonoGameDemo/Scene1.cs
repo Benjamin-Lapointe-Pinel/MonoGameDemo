@@ -18,7 +18,7 @@ namespace MonoGameDemo
 		//Character player2;
 
 		public Scene1(MainGame mainGame)
-			: base(mainGame, 5000, 5000)
+			: base(mainGame, 10000, 2000)
 		{
 			Sprite background = new Sprite(MainGame, DrawHelper.Pixel)
 			{
@@ -39,13 +39,11 @@ namespace MonoGameDemo
 			//AddToScene(player2);
 
 			//Test de performance
-			for (int i = 0; i < 40; i++)
+			for (int i = 0; i < 100; i++)
 			{
-				//animationSheet = AnimationSheetFactory(PlayerTexture);
-				//Character character = new Character(MainGame, animationSheet, 256 + (i * 16), 128, 64, 64);
-				//AddToScene(character);
-				//Lever lever = new Lever(MainGame, new Point(256 + (i * 32), 968), TimeSpan.FromSeconds(0.5));
-				//AddToScene(lever);
+				animationSheet = AnimationSheetFactory(PlayerTexture);
+				Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
+				AddToScene(character);
 			}
 		}
 

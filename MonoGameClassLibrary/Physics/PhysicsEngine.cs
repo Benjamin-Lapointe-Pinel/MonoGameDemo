@@ -70,6 +70,8 @@ namespace MonoGameClassLibrary.Physics
 
 		private void aabb_PropertyChanged(AABB sender, PropertyChangedEventArgs e)
 		{
+			SpatialGrid.Add(sender);
+
 			if (e.PropertyName == "Size")
 			{
 				CollisionHelper.ClassicCollision(sender, SpatialGrid);
@@ -81,7 +83,7 @@ namespace MonoGameClassLibrary.Physics
 
 			CollisionHelper.SetCollisionNotification(sender, SpatialGrid);
 
-			SpatialGrid.Add(sender);
+			
 		}
 
 		public override void Draw(GameTime gameTime)
