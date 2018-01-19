@@ -72,7 +72,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			if (e.PropertyName == "Size")
 			{
-				//Classique resolve
+				CollisionHelper.ResolveClassicCollision(sender, SpatialGrid);
 			}
 			else if (e.PropertyName == "Location")
 			{

@@ -26,11 +26,18 @@ namespace MonoGameClassLibrary.Physics
 
 		public static void ResolveClassicCollision(AABB sender, SpatialGrid spatialGrid)
 		{
-			foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
+			if (sender.Solid)
 			{
-				if (aabb is Box)
+				foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
 				{
-
+					if ((aabb is Box) &&
+						((aabb as Box).InteractWithSolid) &&
+						(sender.Intersects(aabb)))
+					{
+							Vector2 movement = sender.Center - aabb.Center;
+							AABB copy = ResolveCollision(aabb, movement, spatialGrid);
+							aabb.Location = copy.Location;
+					}
 				}
 			}
 		}

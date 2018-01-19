@@ -117,7 +117,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			get
 			{
-				return new Vector2((Right - Left) / 2, (Bottom - Top) / 2);
+				return new Vector2(X + (Width / 2), Y + (Height / 2));
 			}
 		}
 
