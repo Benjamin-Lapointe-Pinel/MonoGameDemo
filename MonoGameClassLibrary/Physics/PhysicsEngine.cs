@@ -83,7 +83,7 @@ namespace MonoGameClassLibrary.Physics
 
 			CollisionHelper.SetCollisionNotification(sender, SpatialGrid);
 
-			
+
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -91,7 +91,27 @@ namespace MonoGameClassLibrary.Physics
 			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
 			foreach (AABB aabb in SpatialGrid.GetProbableCollisions(new AABB(null, 0, 0, Width, Height)))
 			{
+				if (aabb.CollisionSide.HasFlag(AABB.CollisionDirection.Inside))
+				{
+					DrawHelper.DrawRectangle(spriteBatch, aabb.Rectangle, new Color(Color.Red, 0.1f));
+				}
 				DrawHelper.DrawOutline(spriteBatch, aabb.Rectangle, Color.Black);
+				if (aabb.CollisionSide.HasFlag(AABB.CollisionDirection.Top))
+				{
+					DrawHelper.DrawRectangle(spriteBatch, new Rectangle(aabb.Rectangle.Left, aabb.Rectangle.Top, aabb.Rectangle.Width, 1), Color.Red);
+				}
+				if (aabb.CollisionSide.HasFlag(AABB.CollisionDirection.Left))
+				{
+					DrawHelper.DrawRectangle(spriteBatch, new Rectangle(aabb.Rectangle.Left, aabb.Rectangle.Top, 1, aabb.Rectangle.Height), Color.Red);
+				}
+				if (aabb.CollisionSide.HasFlag(AABB.CollisionDirection.Right))
+				{
+					DrawHelper.DrawRectangle(spriteBatch, new Rectangle(aabb.Rectangle.Right - 1, aabb.Rectangle.Top, 1, aabb.Rectangle.Height), Color.Red);
+				}
+				if (aabb.CollisionSide.HasFlag(AABB.CollisionDirection.Bottom))
+				{
+					DrawHelper.DrawRectangle(spriteBatch, new Rectangle(aabb.Rectangle.Left, aabb.Rectangle.Bottom - 1, aabb.Rectangle.Width, 1), Color.Red);
+				}
 
 				if (aabb is Box)
 				{
@@ -99,7 +119,7 @@ namespace MonoGameClassLibrary.Physics
 
 					Vector2 end = box.Acceleration;
 					end *= (float)gameTime.ElapsedGameTime.TotalSeconds;
-					DrawHelper.DrawLine(spriteBatch, box.Rectangle.Center, box.Rectangle.Center + end.ToPoint(), Color.Red);
+					DrawHelper.DrawLine(spriteBatch, box.Rectangle.Center, box.Rectangle.Center + end.ToPoint(), Color.Green);
 
 					end = box.Speed;
 					end *= (float)gameTime.ElapsedGameTime.TotalSeconds;

@@ -17,11 +17,11 @@ namespace MonoGameDemo
 		protected AnimationSheet animationSheet;
 
 		protected float RunningAcceleration;
-		protected float JumpingSpeed;
+		protected float JumpingAcceleration;
 		protected float MaxRunningSpeed;
 
 		public Character(Game game, AnimationSheet animationSheet, float x, float y, float width, float height)
-			: base(game, x, y, width, height, false, true, Math.Min(width, height) * 8)
+			: base(game, x, y, width, height, false, true, Math.Min(width, height))
 		{
 			this.animationSheet = animationSheet;
 
@@ -29,7 +29,7 @@ namespace MonoGameDemo
 
 			MaxRunningSpeed = 600;
 			RunningAcceleration = MaxRunningSpeed * 8;
-			JumpingSpeed = 1750;
+			JumpingAcceleration = 1750;
 		}
 
 		public override void Update(GameTime gameTime)
@@ -106,7 +106,7 @@ namespace MonoGameDemo
 		{
 			if (CanJump())
 			{
-				Speed.Y = -JumpingSpeed;
+				Speed.Y = -JumpingAcceleration;
 			}
 		}
 	}

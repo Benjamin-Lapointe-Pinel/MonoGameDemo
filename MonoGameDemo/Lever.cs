@@ -47,6 +47,8 @@ namespace MonoGameDemo
 
 		public override void Update(GameTime gameTime)
 		{
+			base.Update(gameTime);
+
 			if (SwitchState)
 			{
 				Counter += gameTime.ElapsedGameTime;

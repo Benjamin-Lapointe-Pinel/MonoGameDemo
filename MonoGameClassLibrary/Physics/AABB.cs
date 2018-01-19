@@ -239,11 +239,10 @@ namespace MonoGameClassLibrary.Physics
 
 		public virtual bool Intersects(AABB value)
 		{
-			//return Rectangle.Intersects(value.Rectangle);
-			return (int)value.Left < (int)Right &&
-				   (int)Left < (int)value.Right &&
-				   (int)value.Top < (int)Bottom &&
-				   (int)Top < (int)value.Bottom;
+			return value.Left < Right &&
+				   Left < value.Right &&
+				   value.Top < Bottom &&
+				   Top < value.Bottom;
 		}
 
 		#region MonoGame Methods

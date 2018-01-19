@@ -81,13 +81,13 @@ namespace MonoGameClassLibrary.Physics
 					movement = end - copy.Location;
 
 					IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(copy);
-					if (((movement.X < 0) && (LeftCollision(copy, solids))) ||
-						((movement.X > 0) && ((RightCollision(copy, solids)))))
+					if (((movement.X <= 0) && (LeftCollision(copy, solids))) ||
+						((movement.X >= 0) && ((RightCollision(copy, solids)))))
 					{
 						movement.X = 0;
 					}
-					if (((movement.Y < 0) && (TopCollision(copy, solids))) ||
-						((movement.Y > 0) && (BottomCollision(copy, solids))))
+					if (((movement.Y <= 0) && (TopCollision(copy, solids))) ||
+						((movement.Y >= 0) && (BottomCollision(copy, solids))))
 					{
 						movement.Y = 0;
 					}

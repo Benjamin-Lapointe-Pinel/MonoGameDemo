@@ -18,7 +18,7 @@ namespace MonoGameDemo
 		//Character player2;
 
 		public Scene1(MainGame mainGame)
-			: base(mainGame, 10000, 2000)
+			: base(mainGame, 2000, 2000)
 		{
 			Sprite background = new Sprite(MainGame, DrawHelper.Pixel)
 			{
@@ -41,9 +41,9 @@ namespace MonoGameDemo
 			//Test de performance
 			for (int i = 0; i < 100; i++)
 			{
-				animationSheet = AnimationSheetFactory(PlayerTexture);
-				Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
-				AddToScene(character);
+				//animationSheet = AnimationSheetFactory(PlayerTexture);
+				//Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
+				//AddToScene(character);
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace MonoGameDemo
 			AddToScene(new Lever(MainGame, new Point(250, 904), TimeSpan.FromMilliseconds(100)));
 			AddToScene(new Lever(MainGame, new Point(300, 968), TimeSpan.FromMilliseconds(100)));
 
-			plateform = new DebugPlatform(MainGame, 500, 800, 100, 20, Color.SandyBrown);
+			plateform = new DebugPlatform(MainGame, 400, 800, 200, 20, Color.SandyBrown);
 			AddToScene(plateform);
 
 			int i = 0;
@@ -121,12 +121,14 @@ namespace MonoGameDemo
 			plateform = new DebugPlatform(MainGame, 1500, 0, 20, 936, Color.SandyBrown);
 			AddToScene(plateform);
 
-			Door door = new Door(MainGame, new Point(1500, 936));
-			AddToScene(door);
+			AddToScene(new DebugPlatform(MainGame, 1500, 936, 4, 64, Color.Bisque));
+
+			//Door door = new Door(MainGame, new Point(1500, 936));
+			//AddToScene(door);
 
 			Lever lever = new Lever(MainGame, new Point(1350, 768), TimeSpan.FromSeconds(2));
-			lever.SwitchedOn += door.Open;
-			lever.SwitchedOff += door.Close;
+			//lever.SwitchedOn += door.Open;
+			//lever.SwitchedOff += door.Close;
 			AddToScene(lever);
 		}
 
