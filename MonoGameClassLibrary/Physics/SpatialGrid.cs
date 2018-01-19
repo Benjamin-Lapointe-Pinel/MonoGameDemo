@@ -66,7 +66,7 @@ namespace MonoGameClassLibrary.Physics
 			{
 				foreach (AABB box in tiles)
 				{
-					if ((aabb != box) && !boxes.Contains(box))
+					if (!boxes.Contains(box) && (aabb != box))
 					{
 						boxes.Add(box);
 					}

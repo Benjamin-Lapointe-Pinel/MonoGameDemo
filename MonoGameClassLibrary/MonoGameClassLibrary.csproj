@@ -54,7 +54,6 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Physics\CollisionHelper.cs" />
     <Compile Include="Physics\PhysicsEngine.cs" />
-    <Compile Include="Physics\SmartBox.cs" />
     <Compile Include="Physics\Box.cs" />
     <Compile Include="Physics\SpatialGrid.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

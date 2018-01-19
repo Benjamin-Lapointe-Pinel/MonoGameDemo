@@ -98,6 +98,9 @@ namespace MonoGameDemo
 			plateform = new DebugPlatform(MainGame, 500, 800, 20, 136, Color.SandyBrown);
 			AddToScene(plateform);
 
+			AddToScene(new Lever(MainGame, new Point(250, 904), TimeSpan.FromMilliseconds(100)));
+			AddToScene(new Lever(MainGame, new Point(300, 968), TimeSpan.FromMilliseconds(100)));
+
 			plateform = new DebugPlatform(MainGame, 500, 800, 100, 20, Color.SandyBrown);
 			AddToScene(plateform);
 

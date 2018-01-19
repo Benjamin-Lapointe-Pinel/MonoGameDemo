@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public partial class Character : SmartBox
+	public partial class Character : Box
 	{
 		protected AnimationSheet animationSheet;
 
@@ -27,7 +27,7 @@ namespace MonoGameDemo
 
 			Acceleration.Y = 6000;
 
-			MaxRunningSpeed = 1000;
+			MaxRunningSpeed = 600;
 			RunningAcceleration = MaxRunningSpeed * 8;
 			JumpingSpeed = 1750;
 		}
@@ -61,7 +61,7 @@ namespace MonoGameDemo
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
-			if (!SolidBottomCollision())
+			if (!SolidCollisionSide.HasFlag(CollisionDirection.Bottom))
 			{
 				animationSheet.CycleIndex = 2;
 			}
@@ -94,7 +94,9 @@ namespace MonoGameDemo
 
 		protected bool CanJump()
 		{
-			return SolidBottomCollision() && !SolidTopCollision();
+			return Speed.Y == 0
+				&& SolidCollisionSide.HasFlag(CollisionDirection.Bottom)
+				&& !SolidCollisionSide.HasFlag(CollisionDirection.Top);
 		}
 
 		public void Jump()

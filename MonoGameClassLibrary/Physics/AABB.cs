@@ -129,6 +129,25 @@ namespace MonoGameClassLibrary.Physics
 			this.Solid = solid;
 
 			UpdateOrder = Int16.MaxValue;
+
+			OnCollision += AABB_OnCollision;
+		}
+
+		public CollisionDirection CollisionSide { get; protected set; }
+		public CollisionDirection SolidCollisionSide { get; protected set; }
+		private void AABB_OnCollision(AABB sender, CollisionEventArgs e)
+		{
+			CollisionSide |= e.CollisionSide;
+			if (e.CollidedWith.Solid)
+			{
+				SolidCollisionSide |= e.CollisionSide;
+			}
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			CollisionSide = CollisionDirection.None;
+			SolidCollisionSide = CollisionDirection.None;
 		}
 
 		public AABB(AABB aabb)
@@ -136,75 +155,48 @@ namespace MonoGameClassLibrary.Physics
 		{
 		}
 
-		//TODO : retirer CollisionDirection.None. On devrait que passer des vrais collisions ici
-		public void CollisionNotification(AABB aabb)
+		//TODO : retirer CollisionDirection.None. On devrait que passer des vrais collisions ici (?)
+		public void CollisionNotification(AABB sender)
 		{
-			CollisionDirection senderSide = CollisionDirection.None;
 			CollisionDirection receiverSide = CollisionDirection.None;
+			CollisionDirection senderSide = CollisionDirection.None;
 
-			if (Intersects(aabb))
+			if (Intersects(sender))
 			{
-				senderSide |= CollisionDirection.Inside;
 				receiverSide |= CollisionDirection.Inside;
+				senderSide |= CollisionDirection.Inside;
 			}
 			else
 			{
-				if (this is Box)
+				if (LeftCollision(sender))
 				{
-					Box box = this as Box;
-					if ((box.Speed.X <= 0) && LeftCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Left;
-						receiverSide |= CollisionDirection.Right;
-					}
-					if ((box.Speed.X >= 0) && RightCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Right;
-						receiverSide |= CollisionDirection.Left;
-					}
-					if ((box.Speed.Y <= 0) && TopCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Top;
-						receiverSide |= CollisionDirection.Bottom;
-					}
-					if ((box.Speed.Y >= 0) && BottomCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Bottom;
-						receiverSide |= CollisionDirection.Top;
-					}
+					receiverSide |= CollisionDirection.Left;
+					senderSide |= CollisionDirection.Right;
 				}
-				else
+				if (RightCollision(sender))
 				{
-					if (LeftCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Left;
-						receiverSide |= CollisionDirection.Right;
-					}
-					if (RightCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Right;
-						receiverSide |= CollisionDirection.Left;
-					}
-					if (TopCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Top;
-						receiverSide |= CollisionDirection.Bottom;
-					}
-					if (BottomCollision(aabb))
-					{
-						senderSide |= CollisionDirection.Bottom;
-						receiverSide |= CollisionDirection.Top;
-					}
+					receiverSide |= CollisionDirection.Right;
+					senderSide |= CollisionDirection.Left;
+				}
+				if (TopCollision(sender))
+				{
+					receiverSide |= CollisionDirection.Top;
+					senderSide |= CollisionDirection.Bottom;
+				}
+				if (BottomCollision(sender))
+				{
+					receiverSide |= CollisionDirection.Bottom;
+					senderSide |= CollisionDirection.Top;
 				}
 			}
 
-			if (senderSide != CollisionDirection.None)
-			{
-				OnCollision?.Invoke(this, new CollisionEventArgs(aabb, senderSide));
-			}
 			if (receiverSide != CollisionDirection.None)
 			{
-				aabb.OnCollision?.Invoke(aabb, new CollisionEventArgs(this, receiverSide));
+				OnCollision?.Invoke(this, new CollisionEventArgs(sender, receiverSide));
+			}
+			if (senderSide != CollisionDirection.None)
+			{
+				sender.OnCollision?.Invoke(sender, new CollisionEventArgs(this, senderSide));
 			}
 		}
 
@@ -246,7 +238,11 @@ namespace MonoGameClassLibrary.Physics
 
 		public virtual bool Intersects(AABB value)
 		{
-			return Rectangle.Intersects(value.Rectangle);
+			//return Rectangle.Intersects(value.Rectangle);
+			return value.Left < Right &&
+				   Left < value.Right &&
+				   value.Top < Bottom &&
+				   Top < value.Bottom;
 		}
 
 		#region MonoGame Methods

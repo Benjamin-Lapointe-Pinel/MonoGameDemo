@@ -56,11 +56,6 @@ namespace MonoGameClassLibrary.Physics
 				for (int i = 0; i < steps; i++)
 				{
 					Location += Speed * (float)relativeGameTime.ElapsedGameTime.TotalSeconds;
-					//Speed is 0 anyway after collision
-					//if (Speed == Vector2.Zero)
-					//{
-					//	break;
-					//}
 				}
 			}
 		}
