@@ -24,25 +24,128 @@ namespace MonoGameClassLibrary.Physics
 			copy.Inflate(-1, -1);
 		}
 
-		public static void ClassicCollision(AABB sender, SpatialGrid spatialGrid)
+		//Use with caution
+		public static void ClassicCollisions(Box sender, SpatialGrid spatialGrid)
+		{
+			if (sender.InteractWithSolid)
+			{
+				Vector2 exitVector1 = Vector2.Zero;
+				Vector2 exitVector2 = Vector2.Zero;
+
+				int total = 0;
+				foreach (AABB collision in spatialGrid.GetProbableSolidCollisions(sender))
+				{
+					if (sender.Intersects(collision))
+					{
+						exitVector1 += ExitVector1(sender, collision);
+						exitVector2 += ExitVector2(sender, collision);
+						total++;
+					}
+				}
+				if (total > 0)
+				{
+					exitVector1 /= total;
+					exitVector2 /= total;
+					AABB copy = new AABB(sender);
+					copy.Offset(exitVector1);
+					if (Intersect(copy, spatialGrid.GetProbableSolidCollisions(copy)))
+					{
+						copy = ResolveMovementCollision(sender, exitVector2, spatialGrid);
+					}
+					else
+					{
+						copy = ResolveMovementCollision(sender, exitVector2, spatialGrid);
+					}
+					sender.Location = copy.Location;
+				}
+			}
+		}
+
+		public static void ClassicCollisions(AABB sender, SpatialGrid spatialGrid)
 		{
 			if (sender.Solid)
 			{
 				foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
 				{
-					if ((aabb is Box) &&
-						((aabb as Box).InteractWithSolid) &&
-						(sender.Intersects(aabb)))
+					if (aabb is Box)
 					{
-							Vector2 movement = sender.Center - aabb.Center;
-							AABB copy = ResolveClassicCollision(aabb, movement, sender);
+						Box box = aabb as Box;
+						if ((box.InteractWithSolid) && (sender.Intersects(box)))
+						{
+							Vector2 exitVector = ExitVector1(aabb, sender);
+							AABB copy = ResolveClassicCollision(aabb, exitVector, sender);
 							aabb.Location = copy.Location;
+						}
 					}
 				}
 			}
 		}
 
-		private static AABB ResolveClassicCollision(AABB aabb, Vector2 movement, AABB sender)
+		private static Vector2 ExitVector1(AABB collision, AABB collisionWith)
+		{
+			AABB intersection = AABB.Intersect(collision, collisionWith);
+
+			Vector2 exitVector = Vector2.Zero;
+
+			if (intersection.Width <= intersection.Height)
+			{
+				if (collision.Center.X < collisionWith.Center.X)
+				{
+					exitVector.X = -intersection.Width;
+				}
+				else
+				{
+					exitVector.X = intersection.Width;
+				}
+			}
+			else
+			{
+				if (collision.Center.Y < collisionWith.Center.Y)
+				{
+					exitVector.Y = -intersection.Height;
+				}
+				else
+				{
+					exitVector.Y = intersection.Height;
+				}
+			}
+
+			return exitVector;
+		}
+
+		private static Vector2 ExitVector2(AABB collision, AABB collisionWith)
+		{
+			AABB intersection = AABB.Intersect(collision, collisionWith);
+
+			Vector2 exitVector = Vector2.Zero;
+
+			if (intersection.Width > intersection.Height)
+			{
+				if (collision.Center.X < collisionWith.Center.X)
+				{
+					exitVector.X = -intersection.Width;
+				}
+				else
+				{
+					exitVector.X = intersection.Width;
+				}
+			}
+			else
+			{
+				if (collision.Center.Y < collisionWith.Center.Y)
+				{
+					exitVector.Y = -intersection.Height;
+				}
+				else
+				{
+					exitVector.Y = intersection.Height;
+				}
+			}
+
+			return exitVector;
+		}
+
+		private static AABB ResolveClassicCollision(AABB aabb, Vector2 exitVector, AABB sender)
 		{
 			AABB copy = new AABB(aabb);
 			//Tant que la collision n'est pas résolue
@@ -51,13 +154,13 @@ namespace MonoGameClassLibrary.Physics
 				if (copy.Intersects(sender))
 				{
 					//Défait le mouvement qui créer la collion
-					copy.Offset(-movement);
+					copy.Offset(exitVector);
 				}
 				else
 				{
 					//Avance plus lentement vers la collion
-					movement /= 2;
-					copy.Offset(movement);
+					exitVector /= 2;
+					copy.Offset(-exitVector);
 				}
 			}
 
@@ -69,32 +172,29 @@ namespace MonoGameClassLibrary.Physics
 			//S'il y a vraiment collision
 			if (Intersect(aabb, spatialGrid.GetProbableSolidCollisions(aabb)))
 			{
-				Vector2 end = aabb.Location;
-				Vector2 start = aabb.OldLocation;
-				Vector2 movement = end - start;
+				Vector2 exitVector = aabb.OldLocation - aabb.Location;
 
-				AABB copy = ResolveMovementCollision(aabb, movement, spatialGrid);
+				AABB copy = ResolveMovementCollision(aabb, exitVector, spatialGrid);
 
-				//Fin du mouvement
+				Vector2 finalMovement = aabb.Location - copy.Location;
+
 				if (aabb is Box)
 				{
-					movement = end - copy.Location;
-
 					IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(copy);
-					if (((movement.X <= 0) && (LeftCollision(copy, solids))) ||
-						((movement.X >= 0) && ((RightCollision(copy, solids)))))
+					if (((finalMovement.X < 0) && (LeftCollision(copy, solids))) ||
+						((finalMovement.X > 0) && ((RightCollision(copy, solids)))))
 					{
-						movement.X = 0;
+						finalMovement.X = 0;
 					}
-					if (((movement.Y <= 0) && (TopCollision(copy, solids))) ||
-						((movement.Y >= 0) && (BottomCollision(copy, solids))))
+					if (((finalMovement.Y < 0) && (TopCollision(copy, solids))) ||
+						((finalMovement.Y > 0) && (BottomCollision(copy, solids))))
 					{
-						movement.Y = 0;
+						finalMovement.Y = 0;
 					}
 
-					if (movement != Vector2.Zero)
+					if (finalMovement != Vector2.Zero)
 					{
-						copy.Offset(movement);
+						copy.Offset(finalMovement);
 						MovementCollision(copy, spatialGrid);
 					}
 					else
@@ -106,7 +206,7 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private static AABB ResolveMovementCollision(AABB aabb, Vector2 movement, SpatialGrid spatialGrid)
+		private static AABB ResolveMovementCollision(AABB aabb, Vector2 exitVector, SpatialGrid spatialGrid)
 		{
 			AABB copy = new AABB(aabb);
 			//Tant que la collision n'est pas résolue
@@ -115,13 +215,13 @@ namespace MonoGameClassLibrary.Physics
 				if (Intersect(copy, spatialGrid.GetProbableSolidCollisions(copy)))
 				{
 					//Défait le mouvement qui créer la collion
-					copy.Offset(-movement);
+					copy.Offset(exitVector);
 				}
 				else
 				{
 					//Avance plus lentement vers la collion
-					movement /= 2;
-					copy.Offset(movement);
+					exitVector /= 2;
+					copy.Offset(-exitVector);
 				}
 			}
 

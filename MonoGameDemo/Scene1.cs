@@ -31,7 +31,7 @@ namespace MonoGameDemo
 
 			Texture2D PlayerTexture = MainGame.Content.Load<Texture2D>("playerSheet");
 			AnimationSheet animationSheet = AnimationSheetFactory(PlayerTexture);
-			player1 = new Character(MainGame, animationSheet, 128, 128, 64, 64);
+			player1 = new Character(MainGame, animationSheet, 1040, 128, 64, 64);
 			animationSheet = AnimationSheetFactory(PlayerTexture);
 			//player2 = new Character(MainGame, animationSheet, new Rectangle(256, 128, 64, 64));
 
@@ -42,7 +42,7 @@ namespace MonoGameDemo
 			for (int i = 0; i < 100; i++)
 			{
 				//animationSheet = AnimationSheetFactory(PlayerTexture);
-				//Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
+				//Character character = new Character(MainGame, animationSheet, 256 + (i * 16), 128, 64, 64);
 				//AddToScene(character);
 			}
 		}
@@ -64,8 +64,6 @@ namespace MonoGameDemo
 				player1.Jump();
 			}
 
-			Console.WriteLine(player1);
-
 			//if (keyboardState.IsKeyDown(Keys.Left))
 			//{
 			//	player2.WalkLeft();
@@ -79,14 +77,16 @@ namespace MonoGameDemo
 			//	player2.Jump();
 			//}
 
+			if (player1.Location.Y > PhysicsEngine.Height)
+			{
+				player1.Location = new Vector2(-23, 256);
+			}
+
 			base.Update(gameTime);
 
 			Camera.Center = player1.Rectangle.Center;
 
-			if (player1.Location.Y > PhysicsEngine.Height)
-			{
-				player1.Location = new Vector2(256, 256);
-			}
+			Console.WriteLine(player1);
 		}
 
 		protected void constructLevel()
@@ -96,6 +96,8 @@ namespace MonoGameDemo
 
 			plateform = new DebugPlatform(MainGame, 0, 0, 20, 1000, Color.SandyBrown);
 			AddToScene(plateform);
+
+			AddToScene(new DebugPlatform(MainGame, 100, 900, 2, 2, Color.White));
 
 			plateform = new DebugPlatform(MainGame, 500, 800, 20, 136, Color.SandyBrown);
 			AddToScene(plateform);
@@ -120,15 +122,14 @@ namespace MonoGameDemo
 
 			plateform = new DebugPlatform(MainGame, 1500, 0, 20, 936, Color.SandyBrown);
 			AddToScene(plateform);
+			
 
-			AddToScene(new DebugPlatform(MainGame, 1500, 936, 4, 64, Color.Bisque));
-
-			//Door door = new Door(MainGame, new Point(1500, 936));
-			//AddToScene(door);
+			Door door = new Door(MainGame, new Point(1500, 998));
+			AddToScene(door);
 
 			Lever lever = new Lever(MainGame, new Point(1350, 768), TimeSpan.FromSeconds(2));
-			//lever.SwitchedOn += door.Open;
-			//lever.SwitchedOff += door.Close;
+			lever.SwitchedOn += door.Open;
+			lever.SwitchedOff += door.Close;
 			AddToScene(lever);
 		}
 

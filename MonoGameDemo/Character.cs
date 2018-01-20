@@ -21,7 +21,7 @@ namespace MonoGameDemo
 		protected float MaxRunningSpeed;
 
 		public Character(Game game, AnimationSheet animationSheet, float x, float y, float width, float height)
-			: base(game, x, y, width, height, false, true, Math.Min(width, height))
+			: base(game, x, y, width, height, false, true)
 		{
 			this.animationSheet = animationSheet;
 

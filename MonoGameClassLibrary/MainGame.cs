@@ -40,6 +40,7 @@ namespace MonoGameClassLibrary
 		
 		protected override void Update(GameTime gameTime)
 		{
+			//gameTime.ElapsedGameTime = TimeSpan.FromTicks(gameTime.ElapsedGameTime.Ticks / 4);
 			if (Scenes.Count > 0)
 			{
 				if (gameTime.IsRunningSlowly)

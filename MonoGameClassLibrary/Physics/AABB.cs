@@ -42,10 +42,10 @@ namespace MonoGameClassLibrary.Physics
 		public delegate void PropertyChangedEventHandler(AABB aabb, PropertyChangedEventArgs e);
 		public event PropertyChangingEventHandler PropertyChanging;
 		public event PropertyChangedEventHandler PropertyChanged;
-		protected static PropertyChangingEventArgs PropertyChangingEventArgsLocation = new PropertyChangingEventArgs("Location");
-		protected static PropertyChangedEventArgs PropertyChangedEventArgsLocation = new PropertyChangedEventArgs("Location");
-		protected static PropertyChangingEventArgs PropertyChangingEventArgsSize = new PropertyChangingEventArgs("Size");
-		protected static PropertyChangedEventArgs PropertyChangedEventArgsSize = new PropertyChangedEventArgs("Size");
+		protected PropertyChangingEventArgs PropertyChangingEventArgsLocation = new PropertyChangingEventArgs("Location");
+		protected PropertyChangedEventArgs PropertyChangedEventArgsLocation = new PropertyChangedEventArgs("Location");
+		protected PropertyChangingEventArgs PropertyChangingEventArgsSize = new PropertyChangingEventArgs("Size");
+		protected PropertyChangedEventArgs PropertyChangedEventArgsSize = new PropertyChangedEventArgs("Size");
 
 		protected float x;
 		protected float y;
@@ -67,8 +67,8 @@ namespace MonoGameClassLibrary.Physics
 		{
 			get
 			{
-				//return new Rectangle((int)Math.Round(X, 0), (int)Math.Round(Y, 0), (int)Math.Round(Width, 0), (int)Math.Round(Height, 0));
 				return new Rectangle((int)X, (int)Y, (int)Width, (int)Height);
+				//return new Rectangle((int)Math.Round(X, 0), (int)Math.Round(Y, 0), (int)Math.Round(Width, 0), (int)Math.Round(Height, 0));
 			}
 			set
 			{
@@ -239,10 +239,17 @@ namespace MonoGameClassLibrary.Physics
 
 		public virtual bool Intersects(AABB value)
 		{
+			//return Rectangle.Intersects(value.Rectangle);
 			return value.Left < Right &&
 				   Left < value.Right &&
 				   value.Top < Bottom &&
 				   Top < value.Bottom;
+		}
+
+		public static AABB Intersect(AABB value1, AABB value2)
+		{
+			Rectangle rectangle = Rectangle.Intersect(value1.Rectangle, value2.Rectangle);
+			return new AABB(value1.Game, rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, false);
 		}
 
 		#region MonoGame Methods

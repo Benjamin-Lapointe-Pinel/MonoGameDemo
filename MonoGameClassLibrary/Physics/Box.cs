@@ -11,6 +11,7 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public bool InteractWithSolid { get; set; }
 		public float MovementIncrement { get; set; }
+		public bool SpeedUpdate { get; protected set; }
 
 		public Vector2 Acceleration;
 		public Vector2 Speed;
@@ -19,11 +20,19 @@ namespace MonoGameClassLibrary.Physics
 			: base(game, x, y, width, height, solid)
 		{
 			this.InteractWithSolid = interactWithSolid;
+
 			this.MovementIncrement = movementIncrement;
+			if (MovementIncrement == 0)
+			{
+				MovementIncrement = Math.Min(width, height);
+			}
+
 
 			Acceleration = new Vector2(0, 0);
 			Speed = new Vector2(0, 0);
 			UpdateOrder = Int32.MaxValue;
+
+			SpeedUpdate = false;
 		}
 
 		public Box(Box box)
@@ -55,7 +64,9 @@ namespace MonoGameClassLibrary.Physics
 
 				for (int i = 0; i < steps; i++)
 				{
+					SpeedUpdate = true;
 					Location += Speed * (float)relativeGameTime.ElapsedGameTime.TotalSeconds;
+					SpeedUpdate = false;
 				}
 			}
 		}
