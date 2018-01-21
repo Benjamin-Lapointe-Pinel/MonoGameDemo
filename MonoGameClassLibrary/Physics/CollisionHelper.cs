@@ -92,27 +92,27 @@ namespace MonoGameClassLibrary.Physics
 			return exitVector;
 		}
 
-		private static AABB ResolveExpulseCollision(AABB aabb, Vector2 exitVector, AABB sender)
-		{
-			AABB copy = new AABB(aabb);
-			//Tant que la collision n'est pas résolue
-			while (copy.Location != copy.OldLocation) //Pourrait être optimisé contre une perte de précision?
-			{
-				if (copy.Intersects(sender))
-				{
-					//Défait le mouvement qui créer la collion
-					copy.Offset(exitVector);
-				}
-				else
-				{
-					//Avance plus lentement vers la collion
-					exitVector /= 2;
-					copy.Offset(-exitVector);
-				}
-			}
-
-			return copy;
-		}
+		//private static AABB ResolveExpulseCollision(AABB aabb, Vector2 exitVector, AABB sender)
+		//{
+		//	AABB copy = new AABB(aabb);
+		//	//Tant que la collision n'est pas résolue
+		//	while (copy.Location != copy.OldLocation) //Pourrait être optimisé contre une perte de précision?
+		//	{
+		//		if (copy.Intersects(sender))
+		//		{
+		//			//Défait le mouvement qui créer la collion
+		//			copy.Offset(exitVector);
+		//		}
+		//		else
+		//		{
+		//			//Avance plus lentement vers la collion
+		//			exitVector /= 2;
+		//			copy.Offset(-exitVector);
+		//		}
+		//	}
+		//
+		//	return copy;
+		//}
 
 		public static void MovementCollision(AABB aabb, SpatialGrid spatialGrid)
 		{
