@@ -60,9 +60,7 @@ namespace MonoGameClassLibrary.Physics
 						Box box = aabb as Box;
 						if ((box.InteractWithSolid) && (sender.Intersects(box)))
 						{
-							Vector2 exitVector = ExitVector(aabb, sender);
-							AABB copy = ResolveExpulseCollision(aabb, exitVector, sender);
-							aabb.Location = copy.Location;
+							ClassicCollision(box, spatialGrid);
 						}
 					}
 				}
