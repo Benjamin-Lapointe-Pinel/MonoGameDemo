@@ -16,7 +16,7 @@ namespace MonoGameClassLibrary.Physics
 			copy.Inflate(1, 1);
 			foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
 			{
-				if (copy.Intersects(aabb))
+				if (aabb.Intersects(copy))
 				{
 					sender.CollisionNotification(aabb);
 				}
@@ -34,7 +34,7 @@ namespace MonoGameClassLibrary.Physics
 				int total = 0;
 				foreach (AABB collision in spatialGrid.GetProbableSolidCollisions(sender))
 				{
-					if (sender.Intersects(collision))
+					if (collision.Intersects(sender))
 					{
 						exitVector += ExitVector(sender, collision);
 						total++;
@@ -58,7 +58,7 @@ namespace MonoGameClassLibrary.Physics
 					if (aabb is Box)
 					{
 						Box box = aabb as Box;
-						if ((box.InteractWithSolid) && (sender.Intersects(box)))
+						if ((box.InteractWithSolid) && (box.Intersects(sender)))
 						{
 							ClassicCollision(box, spatialGrid);
 						}
@@ -92,70 +92,45 @@ namespace MonoGameClassLibrary.Physics
 			return exitVector;
 		}
 
-		//private static AABB ResolveExpulseCollision(AABB aabb, Vector2 exitVector, AABB sender)
-		//{
-		//	AABB copy = new AABB(aabb);
-		//	//Tant que la collision n'est pas résolue
-		//	while (copy.Location != copy.OldLocation) //Pourrait être optimisé contre une perte de précision?
-		//	{
-		//		if (copy.Intersects(sender))
-		//		{
-		//			//Défait le mouvement qui créer la collion
-		//			copy.Offset(exitVector);
-		//		}
-		//		else
-		//		{
-		//			//Avance plus lentement vers la collion
-		//			exitVector /= 2;
-		//			copy.Offset(-exitVector);
-		//		}
-		//	}
-		//
-		//	return copy;
-		//}
-
-		public static void MovementCollision(AABB aabb, SpatialGrid spatialGrid)
+		public static void MovementCollision(Box box, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
-			if (Intersect(aabb, spatialGrid.GetProbableSolidCollisions(aabb)))
+			if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
 			{
-				Vector2 exitVector = aabb.OldLocation - aabb.Location;
+				Vector2 exitVector = box.OldLocation - box.Location;
 
-				AABB copy = ResolveMovementCollision(aabb, exitVector, spatialGrid);
+				Box copy = ResolveMovementCollision(box, exitVector, spatialGrid);
 
-				Vector2 finalMovement = aabb.Location - copy.Location;
-
-				if (aabb is Box)
+				Vector2 finalMovement = box.Location - copy.Location;
+				IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(copy);
+				if (((finalMovement.X < 0) && (LeftCollision(copy, solids))) ||
+					((finalMovement.X > 0) && ((RightCollision(copy, solids)))))
 				{
-					IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(copy);
-					if (((finalMovement.X < 0) && (LeftCollision(copy, solids))) ||
-						((finalMovement.X > 0) && ((RightCollision(copy, solids)))))
-					{
-						finalMovement.X = 0;
-					}
-					if (((finalMovement.Y < 0) && (TopCollision(copy, solids))) ||
-						((finalMovement.Y > 0) && (BottomCollision(copy, solids))))
-					{
-						finalMovement.Y = 0;
-					}
-
-					if (finalMovement != Vector2.Zero)
-					{
-						copy.Offset(finalMovement);
-						MovementCollision(copy, spatialGrid);
-					}
-					else
-					{
-						(aabb as Box).Speed = Vector2.Zero;
-					}
+					finalMovement.X = 0;
 				}
-				aabb.Location = copy.Location;
+				if (((finalMovement.Y < 0) && (TopCollision(copy, solids))) ||
+					((finalMovement.Y > 0) && (BottomCollision(copy, solids))))
+				{
+					finalMovement.Y = 0;
+				}
+
+				if (finalMovement != Vector2.Zero)
+				{
+					copy.Offset(finalMovement);
+					MovementCollision(copy, spatialGrid);
+				}
+				else
+				{
+					box.Speed = Vector2.Zero;
+				}
+
+				box.Location = copy.Location;
 			}
 		}
 
-		private static AABB ResolveMovementCollision(AABB aabb, Vector2 exitVector, SpatialGrid spatialGrid)
+		private static Box ResolveMovementCollision(Box box, Vector2 exitVector, SpatialGrid spatialGrid)
 		{
-			AABB copy = new AABB(aabb);
+			Box copy = new Box(box);
 			//Tant que la collision n'est pas résolue
 			while (copy.Location != copy.OldLocation) //Pourrait être optimisé contre une perte de précision?
 			{
@@ -179,7 +154,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			foreach (AABB aabb in aabbs)
 			{
-				if (main.Intersects(aabb))
+				if (aabb.Intersects(main))
 				{
 					return true;
 				}
@@ -191,7 +166,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			foreach (AABB aabb in aabbs)
 			{
-				if (main.LeftCollision(aabb))
+				if (aabb.RightCollision(main))
 				{
 					return true;
 				}
@@ -203,7 +178,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			foreach (AABB aabb in aabbs)
 			{
-				if (main.RightCollision(aabb))
+				if (aabb.LeftCollision(main))
 				{
 					return true;
 				}
@@ -215,7 +190,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			foreach (AABB aabb in aabbs)
 			{
-				if (main.TopCollision(aabb))
+				if (aabb.BottomCollision(main))
 				{
 					return true;
 				}
@@ -227,7 +202,7 @@ namespace MonoGameClassLibrary.Physics
 		{
 			foreach (AABB aabb in aabbs)
 			{
-				if (main.BottomCollision(aabb))
+				if (aabb.TopCollision(main))
 				{
 					return true;
 				}

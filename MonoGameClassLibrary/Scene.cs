@@ -76,20 +76,51 @@ namespace MonoGameClassLibrary
 			{
 				updatable.Update(gameTime);
 			}
-			
+
 			PhysicsEngine.Update(gameTime);
 		}
 
 		public virtual void Draw(GameTime gameTime)
 		{
 			MainGame.GraphicsDevice.Clear(Color.Transparent);
-			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.Transform);
 
-			foreach (IDrawable drawable in Drawables.Values)
+			//Background
+			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+			int i = 0;
+			for (; i < Drawables.Count; i++)
 			{
-				drawable.Draw(gameTime);
+				if (Drawables.Values[i].DrawOrder == Sprite.BACKGROUND)
+				{
+					Drawables.Values[i].Draw(gameTime);
+				}
+				else
+				{
+					break;
+				}
 			}
+			MainGame.SpriteBatch.End();
 
+			//Middleground
+			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.Transform);
+			for (; i < Drawables.Count; i++)
+			{
+				if (Drawables.Values[i].DrawOrder != Sprite.FOREGROUND)
+				{
+					Drawables.Values[i].Draw(gameTime);
+				}
+				else
+				{
+					break;
+				}
+			}
+			MainGame.SpriteBatch.End();
+
+			//Foreground
+			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+			for (; i < Drawables.Count; i++)
+			{
+				Drawables.Values[i].Draw(gameTime);
+			}
 			MainGame.SpriteBatch.End();
 		}
 	}

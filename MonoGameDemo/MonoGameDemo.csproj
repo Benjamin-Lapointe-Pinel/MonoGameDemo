@@ -46,6 +46,7 @@
     <Compile Include="Door.cs" />
     <Compile Include="Lever.cs" />
     <Compile Include="MonoGame\Program.cs" />
+    <Compile Include="PassthroughPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scene1.cs" />
   </ItemGroup>

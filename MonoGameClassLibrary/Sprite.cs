@@ -10,7 +10,8 @@ namespace MonoGameClassLibrary
 {
 	public class Sprite : DrawableGameComponent
 	{
-		public static readonly int BACKGROUND = 0;
+		public static readonly int BACKGROUND = int.MinValue;
+		public static readonly int MIDDLEGROUND = 0;
 		public static readonly int FOREGROUND = int.MaxValue;
 
 		public Rectangle DestinationRectangle;
@@ -39,7 +40,7 @@ namespace MonoGameClassLibrary
 			if (Visible)
 			{
 				SpriteBatch spriteBatch = Game.Services.GetService<SpriteBatch>();
-				spriteBatch.Draw(texture2D, DestinationRectangle, SourceRectangle, Color, Rotation, Origin, SpriteEffects, DrawOrder);
+				spriteBatch.Draw(texture2D, DestinationRectangle, SourceRectangle, Color, Rotation, Origin, SpriteEffects, 0);
 			}
 		}
 	}

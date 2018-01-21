@@ -18,20 +18,28 @@ namespace MonoGameDemo
 		//Character player2;
 
 		public Scene1(MainGame mainGame)
-			: base(mainGame, 2000, 2000)
+			: base(mainGame, 10000, 2000)
 		{
-			Sprite background = new Sprite(MainGame, DrawHelper.Pixel)
+			Sprite background = new Sprite(MainGame, MainGame.Content.Load<Texture2D>("background"))
 			{
-				Color = Color.CornflowerBlue,
-				DestinationRectangle = new Rectangle(0, 0, PhysicsEngine.Width, PhysicsEngine.Height)
+				DestinationRectangle = new Rectangle(0, 0, MainGame.GraphicsDevice.Viewport.Width, MainGame.GraphicsDevice.Viewport.Height),
+				DrawOrder = Sprite.BACKGROUND
 			};
 			AddToScene(background);
+
+			Sprite hud = new Sprite(MainGame, DrawHelper.Pixel)
+			{
+				DestinationRectangle = new Rectangle(8, 8, 256, 64),
+				Color = new Color(Color.Gray, 0.5f),
+				DrawOrder = Sprite.FOREGROUND
+			};
+			AddToScene(hud);
 
 			constructLevel();
 
 			Texture2D PlayerTexture = MainGame.Content.Load<Texture2D>("playerSheet");
 			AnimationSheet animationSheet = AnimationSheetFactory(PlayerTexture);
-			player1 = new Character(MainGame, animationSheet, 1040, 128, 64, 64);
+			player1 = new Character(MainGame, animationSheet, 128, 128, 64, 64);
 			animationSheet = AnimationSheetFactory(PlayerTexture);
 			//player2 = new Character(MainGame, animationSheet, new Rectangle(256, 128, 64, 64));
 
@@ -42,7 +50,7 @@ namespace MonoGameDemo
 			for (int i = 0; i < 100; i++)
 			{
 				//animationSheet = AnimationSheetFactory(PlayerTexture);
-				//Character character = new Character(MainGame, animationSheet, 256 + (i * 16), 128, 64, 64);
+				//Character character = new Character(MainGame, animationSheet, 256 + (i * 32), 128, 64, 64);
 				//AddToScene(character);
 			}
 		}
@@ -62,6 +70,10 @@ namespace MonoGameDemo
 			if (keyboardState.IsKeyDown(Keys.W))
 			{
 				player1.Jump();
+			}
+			if (keyboardState.IsKeyDown(Keys.Space))
+			{
+				player1.Location = new Vector2(1503 - (player1.Width / 2), 936);
 			}
 
 			//if (keyboardState.IsKeyDown(Keys.Left))
@@ -95,8 +107,6 @@ namespace MonoGameDemo
 			lastScrollWheelValue = Mouse.GetState().ScrollWheelValue;
 
 			Camera.Center = player1.Rectangle.Center;
-
-			Console.WriteLine(player1);
 		}
 		int lastScrollWheelValue = 0;
 
@@ -110,14 +120,13 @@ namespace MonoGameDemo
 
 			AddToScene(new DebugPlatform(MainGame, 100, 900, 2, 2, Color.White));
 
-			plateform = new DebugPlatform(MainGame, 500, 800, 20, 136, Color.SandyBrown);
-			AddToScene(plateform);
+			//plateform = new DebugPlatform(MainGame, 500, 800, 20, 136, Color.SandyBrown);
+			//AddToScene(plateform);
 
 			AddToScene(new Lever(MainGame, new Point(250, 904), TimeSpan.FromMilliseconds(100)));
 			AddToScene(new Lever(MainGame, new Point(300, 968), TimeSpan.FromMilliseconds(100)));
 
-			plateform = new DebugPlatform(MainGame, 400, 800, 200, 20, Color.SandyBrown);
-			AddToScene(plateform);
+			AddToScene(new PassthroughPlatform(MainGame, 400, 750, 200));
 
 			int i = 0;
 			for (; i < 5; i++)
