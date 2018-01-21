@@ -29,33 +29,21 @@ namespace MonoGameClassLibrary.Physics
 		{
 			if (sender.InteractWithSolid)
 			{
-				Vector2 exitVector1 = Vector2.Zero;
-				Vector2 exitVector2 = Vector2.Zero;
+				Vector2 exitVector = Vector2.Zero;
 
 				int total = 0;
 				foreach (AABB collision in spatialGrid.GetProbableSolidCollisions(sender))
 				{
 					if (sender.Intersects(collision))
 					{
-						exitVector1 += ExitVector1(sender, collision);
-						exitVector2 += ExitVector2(sender, collision);
+						exitVector += ExitVector(sender, collision);
 						total++;
 					}
 				}
 				if (total > 0)
 				{
-					exitVector1 /= total;
-					exitVector2 /= total;
-					AABB copy = new AABB(sender);
-					copy.Offset(exitVector1);
-					if (Intersect(copy, spatialGrid.GetProbableSolidCollisions(copy)))
-					{
-						copy = ResolveMovementCollision(sender, exitVector2, spatialGrid);
-					}
-					else
-					{
-						copy = ResolveMovementCollision(sender, exitVector2, spatialGrid);
-					}
+					exitVector /= total;
+					AABB copy = ResolveMovementCollision(sender, exitVector, spatialGrid);
 					sender.Location = copy.Location;
 				}
 			}
@@ -72,7 +60,7 @@ namespace MonoGameClassLibrary.Physics
 						Box box = aabb as Box;
 						if ((box.InteractWithSolid) && (sender.Intersects(box)))
 						{
-							Vector2 exitVector = ExitVector1(aabb, sender);
+							Vector2 exitVector = ExitVector(aabb, sender);
 							AABB copy = ResolveClassicCollision(aabb, exitVector, sender);
 							aabb.Location = copy.Location;
 						}
@@ -81,66 +69,12 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private static Vector2 ExitVector1(AABB collision, AABB collisionWith)
+		private static Vector2 ExitVector(AABB collision, AABB collisionWith)
 		{
 			AABB intersection = AABB.Intersect(collision, collisionWith);
-
-			Vector2 exitVector = Vector2.Zero;
-
-			if (intersection.Width <= intersection.Height)
-			{
-				if (collision.Center.X < collisionWith.Center.X)
-				{
-					exitVector.X = -intersection.Width;
-				}
-				else
-				{
-					exitVector.X = intersection.Width;
-				}
-			}
-			else
-			{
-				if (collision.Center.Y < collisionWith.Center.Y)
-				{
-					exitVector.Y = -intersection.Height;
-				}
-				else
-				{
-					exitVector.Y = intersection.Height;
-				}
-			}
-
-			return exitVector;
-		}
-
-		private static Vector2 ExitVector2(AABB collision, AABB collisionWith)
-		{
-			AABB intersection = AABB.Intersect(collision, collisionWith);
-
-			Vector2 exitVector = Vector2.Zero;
-
-			if (intersection.Width > intersection.Height)
-			{
-				if (collision.Center.X < collisionWith.Center.X)
-				{
-					exitVector.X = -intersection.Width;
-				}
-				else
-				{
-					exitVector.X = intersection.Width;
-				}
-			}
-			else
-			{
-				if (collision.Center.Y < collisionWith.Center.Y)
-				{
-					exitVector.Y = -intersection.Height;
-				}
-				else
-				{
-					exitVector.Y = intersection.Height;
-				}
-			}
+			Vector2 intersectionVector = new Vector2(intersection.Width, intersection.Height);
+			Vector2 directionVector = collision.Center - collisionWith.Center;
+			Vector2 exitVector = intersectionVector * (directionVector / directionVector.Length());
 
 			return exitVector;
 		}
