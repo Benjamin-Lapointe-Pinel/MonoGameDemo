@@ -33,7 +33,7 @@ namespace MonoGameDemo
 		public void Close(object sender)
 		{
 			Solid = true;
-			Size = new Vector2(4, height);
+			Size = new Vector2(53, height);
 			sprite.SourceRectangle.X = 0;
 		}
 

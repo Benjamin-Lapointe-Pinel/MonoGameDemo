@@ -203,36 +203,48 @@ namespace MonoGameClassLibrary.Physics
 
 		public virtual bool LeftCollision(AABB aabb)
 		{
+			float oldx = x;
+			x = (int)x;
+
 			x -= 1;
 			bool result = Intersects(aabb);
-			x += 1;
+			x = oldx;
 
 			return result;
 		}
 
 		public virtual bool RightCollision(AABB aabb)
 		{
+			float oldx = x;
+			x = (int)x;
+
 			x += 1;
 			bool result = Intersects(aabb);
-			x -= 1;
+			x = oldx;
 
 			return result;
 		}
 
 		public virtual bool TopCollision(AABB aabb)
 		{
+			float oldy = y;
+			y = (int)y;
+
 			y -= 1;
 			bool result = Intersects(aabb);
-			y += 1;
+			y = oldy;
 
 			return result;
 		}
 
 		public virtual bool BottomCollision(AABB aabb)
 		{
+			float oldy = y;
+			y = (int)y;
+
 			y += 1;
 			bool result = Intersects(aabb);
-			y -= 1;
+			y = oldy;
 
 			return result;
 		}

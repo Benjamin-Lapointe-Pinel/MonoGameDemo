@@ -79,15 +79,26 @@ namespace MonoGameDemo
 
 			if (player1.Location.Y > PhysicsEngine.Height)
 			{
-				player1.Location = new Vector2(-23, 256);
+				player1.Location = new Vector2(-21, 500 - player1.Width / 2);
 			}
 
 			base.Update(gameTime);
+
+			if (Mouse.GetState().ScrollWheelValue < lastScrollWheelValue)
+			{
+				Camera.Zoom /= 1.1f;
+			}
+			else if(Mouse.GetState().ScrollWheelValue > lastScrollWheelValue)
+			{
+				Camera.Zoom *= 1.1f;
+			}
+			lastScrollWheelValue = Mouse.GetState().ScrollWheelValue;
 
 			Camera.Center = player1.Rectangle.Center;
 
 			Console.WriteLine(player1);
 		}
+		int lastScrollWheelValue = 0;
 
 		protected void constructLevel()
 		{
@@ -124,7 +135,7 @@ namespace MonoGameDemo
 			AddToScene(plateform);
 			
 
-			Door door = new Door(MainGame, new Point(1500, 936));
+			Door door = new Door(MainGame, new Point(1500, 873));
 			AddToScene(door);
 
 			Lever lever = new Lever(MainGame, new Point(1350, 768), TimeSpan.FromSeconds(2));

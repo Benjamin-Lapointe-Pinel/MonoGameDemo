@@ -25,7 +25,7 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		//Use with caution
-		public static void ClassicCollisions(Box sender, SpatialGrid spatialGrid)
+		public static void ClassicCollision(Box sender, SpatialGrid spatialGrid)
 		{
 			if (sender.InteractWithSolid)
 			{
@@ -49,7 +49,7 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public static void ClassicCollisions(AABB sender, SpatialGrid spatialGrid)
+		public static void ExpulseCollision(AABB sender, SpatialGrid spatialGrid)
 		{
 			if (sender.Solid)
 			{
@@ -61,7 +61,7 @@ namespace MonoGameClassLibrary.Physics
 						if ((box.InteractWithSolid) && (sender.Intersects(box)))
 						{
 							Vector2 exitVector = ExitVector(aabb, sender);
-							AABB copy = ResolveClassicCollision(aabb, exitVector, sender);
+							AABB copy = ResolveExpulseCollision(aabb, exitVector, sender);
 							aabb.Location = copy.Location;
 						}
 					}
@@ -74,12 +74,27 @@ namespace MonoGameClassLibrary.Physics
 			AABB intersection = AABB.Intersect(collision, collisionWith);
 			Vector2 intersectionVector = new Vector2(intersection.Width, intersection.Height);
 			Vector2 directionVector = collision.Center - collisionWith.Center;
+
+			if (directionVector == Vector2.Zero)
+			{
+				directionVector.X = -1;
+			}
+
 			Vector2 exitVector = intersectionVector * (directionVector / directionVector.Length());
+
+			if ((exitVector.Y != 0) && (Math.Abs(exitVector.X) > Math.Abs(exitVector.Y)))
+			{
+				exitVector.X = 0;
+			}
+			else if ((exitVector.X != 0) && (Math.Abs(exitVector.Y) > Math.Abs(exitVector.X)))
+			{
+				exitVector.Y = 0;
+			}
 
 			return exitVector;
 		}
 
-		private static AABB ResolveClassicCollision(AABB aabb, Vector2 exitVector, AABB sender)
+		private static AABB ResolveExpulseCollision(AABB aabb, Vector2 exitVector, AABB sender)
 		{
 			AABB copy = new AABB(aabb);
 			//Tant que la collision n'est pas résolue

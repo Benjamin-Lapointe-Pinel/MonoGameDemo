@@ -81,12 +81,12 @@ namespace MonoGameClassLibrary.Physics
 				}
 				else
 				{
-					CollisionHelper.ClassicCollisions(box, SpatialGrid);
+					CollisionHelper.ClassicCollision(box, SpatialGrid);
 				}
 			}
 			else
 			{
-				CollisionHelper.ClassicCollisions(sender, SpatialGrid);
+				CollisionHelper.ExpulseCollision(sender, SpatialGrid);
 			}
 
 			CollisionHelper.SetCollisionNotification(sender, SpatialGrid);
