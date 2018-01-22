@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public partial class Character : Box
+	public partial class Character : KineticBox
 	{
 		protected AnimationSheet animationSheet;
 

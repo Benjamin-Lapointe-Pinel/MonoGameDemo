@@ -68,7 +68,7 @@ namespace MonoGameClassLibrary
 			{
 				Scenes.Peek().Draw(gameTime);
 #if DEBUG
-				SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Scenes.Peek().Camera.Transform);
+				SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Scenes.Peek().Camera.TransformMatrix);
 				Scenes.Peek().PhysicsEngine.Draw(new GameTime(gameTime.TotalGameTime, TargetElapsedTime));
 				SpriteBatch.End();
 #endif

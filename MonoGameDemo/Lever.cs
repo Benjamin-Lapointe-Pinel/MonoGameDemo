@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public class Lever : AABB
+	public class Lever : Box
 	{
 		public delegate void SwitchedHandler(Lever sender);
 		public event SwitchedHandler Toggled;
@@ -33,7 +33,7 @@ namespace MonoGameDemo
 			OnCollision += Lever_OnCollision;
 		}
 
-		private void Lever_OnCollision(AABB sender, CollisionEventArgs e)
+		private void Lever_OnCollision(Box sender, CollisionEventArgs e)
 		{
 			if (e.CollidedWith is Character)
 			{

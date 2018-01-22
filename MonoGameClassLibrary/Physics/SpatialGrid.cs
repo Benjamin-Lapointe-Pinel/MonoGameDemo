@@ -12,7 +12,7 @@ namespace MonoGameClassLibrary.Physics
 	{
 		public static readonly int TILE_SIZE = 128;
 
-		public List<AABB>[,] Tiles { get; protected set; }
+		public List<Box>[,] Tiles { get; protected set; }
 		public int TilesWidth { get { return Tiles.GetLength(0); } }
 		public int TilesHeight { get { return Tiles.GetLength(1); } }
 		public int Width { get { return Tiles.GetLength(0) * TILE_SIZE; } }
@@ -21,35 +21,35 @@ namespace MonoGameClassLibrary.Physics
 		public SpatialGrid(Game game, int width, int height)
 			: base(game)
 		{
-			Tiles = new List<AABB>[width, height];
+			Tiles = new List<Box>[width, height];
 			for (int i = 0; i < Tiles.GetLength(0); i++)
 			{
 				for (int j = 0; j < Tiles.GetLength(1); j++)
 				{
-					Tiles[i, j] = new List<AABB>();
+					Tiles[i, j] = new List<Box>();
 				}
 			}
 		}
 
-		public void Add(AABB aabb)
+		public void Add(Box aabb)
 		{
-			foreach (List<AABB> tile in GetCollisionTiles(aabb))
+			foreach (List<Box> tile in GetCollisionTiles(aabb))
 			{
 				tile.Add(aabb);
 			}
 		}
 
-		public void Remove(AABB aabb)
+		public void Remove(Box aabb)
 		{
-			foreach (List<AABB> tile in GetCollisionTiles(aabb))
+			foreach (List<Box> tile in GetCollisionTiles(aabb))
 			{
 				tile.Remove(aabb);
 			}
 		}
 
-		public IEnumerable<AABB> GetProbableSolidCollisions(AABB aabb)
+		public IEnumerable<Box> GetProbableSolidCollisions(Box aabb)
 		{
-			foreach (AABB box in GetProbableCollisions(aabb))
+			foreach (Box box in GetProbableCollisions(aabb))
 			{
 				if (box.Solid)
 				{
@@ -58,13 +58,13 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		public IEnumerable<AABB> GetProbableCollisions(AABB aabb)
+		public IEnumerable<Box> GetProbableCollisions(Box aabb)
 		{
-			List<AABB> boxes = new List<AABB>();
+			List<Box> boxes = new List<Box>();
 
-			foreach (List<AABB> tiles in GetCollisionTiles(aabb))
+			foreach (List<Box> tiles in GetCollisionTiles(aabb))
 			{
-				foreach (AABB box in tiles)
+				foreach (Box box in tiles)
 				{
 					if (!boxes.Contains(box) && (aabb != box))
 					{
@@ -76,7 +76,7 @@ namespace MonoGameClassLibrary.Physics
 			return boxes;
 		}
 
-		protected IEnumerable<List<AABB>> GetCollisionTiles(AABB aabb)
+		protected IEnumerable<List<Box>> GetCollisionTiles(Box aabb)
 		{
 			int startingI = Math.Max((aabb.Rectangle.Left - 1) / TILE_SIZE, 0);
 			int endingI = Math.Min(aabb.Rectangle.Right / TILE_SIZE, Tiles.GetLength(0) - 1);

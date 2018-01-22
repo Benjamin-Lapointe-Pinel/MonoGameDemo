@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public class Door : AABB
+	public class Door : Box
 	{
 		Sprite sprite;
 

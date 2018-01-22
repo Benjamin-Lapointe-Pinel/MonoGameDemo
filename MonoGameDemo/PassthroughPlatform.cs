@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameDemo
 {
-	public class PassthroughPlatform : AABB
+	public class PassthroughPlatform : Box
 	{
 		public Color Color { get; protected set; }
 
@@ -19,13 +19,13 @@ namespace MonoGameDemo
 		{
 		}
 
-		public override bool Intersects(AABB value)
+		public override bool Intersects(Box value)
 		{
 			if (base.Intersects(value))
 			{
-				if (value is Box)
+				if (value is KineticBox)
 				{
-					Box box = value as Box;
+					KineticBox box = value as KineticBox;
 					if (box.Speed.Y < 0)
 					{
 						return false;

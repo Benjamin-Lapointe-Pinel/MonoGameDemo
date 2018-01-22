@@ -11,7 +11,7 @@ namespace MonoGameClassLibrary
 	public class Camera : GameComponent
 	{
 		protected Viewport viewport;
-		public Matrix Transform { get; protected set; }
+		public Matrix TransformMatrix { get; protected set; }
 		public Point center;
 		public Point Center
 		{
@@ -52,9 +52,14 @@ namespace MonoGameClassLibrary
 
 		protected void Update()
 		{
-			Transform = Matrix.CreateTranslation(-Center.X, -Center.Y, 0);
-			Transform *= Matrix.CreateScale(Zoom);
-			Transform *= Matrix.CreateTranslation(viewport.Width / 2, viewport.Height / 2, 0);
+			TransformMatrix = Matrix.CreateTranslation(-Center.X, -Center.Y, 0);
+			TransformMatrix *= Matrix.CreateScale(Zoom);
+			TransformMatrix *= Matrix.CreateTranslation(viewport.Width / 2, viewport.Height / 2, 0);
+		}
+
+		public Vector2 ToWorld(Vector2 vector2)
+		{
+			return Vector2.Transform(vector2, Matrix.Invert(TransformMatrix));
 		}
 	}
 }

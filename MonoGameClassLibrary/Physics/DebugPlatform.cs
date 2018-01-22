@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MonoGameClassLibrary.Physics
 {
-	public class DebugPlatform : AABB
+	public class DebugPlatform : Box
 	{
 		public Color Color { get; protected set; }
 

@@ -144,7 +144,7 @@ namespace MonoGameDemo
 			AddToScene(plateform);
 			
 
-			Door door = new Door(MainGame, new Point(1500, 936));
+			Door door = new Door(MainGame, new Point(1500, 873));
 			AddToScene(door);
 
 			Lever lever = new Lever(MainGame, new Point(1350, 768), TimeSpan.FromSeconds(2));

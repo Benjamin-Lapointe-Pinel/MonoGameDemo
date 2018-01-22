@@ -15,6 +15,7 @@ namespace MonoGameClassLibrary
 		protected SortedList<int, IUpdateable> Updatables;
 		protected SortedList<int, IDrawable> Drawables;
 
+		public Color BackgroundColor { get; set; }
 		public Camera Camera { get; protected set; }
 		public PhysicsEngine PhysicsEngine { get; protected set; }
 
@@ -25,15 +26,21 @@ namespace MonoGameClassLibrary
 			Updatables = new SortedList<int, IUpdateable>(new DuplicateKeyComparer<int>());
 			Drawables = new SortedList<int, IDrawable>(new DuplicateKeyComparer<int>());
 
+			BackgroundColor = Color.Transparent;
 			Camera = new Camera(MainGame);
 			PhysicsEngine = new PhysicsEngine(MainGame, width, height);
 		}
 
+		public Scene(MainGame mainGame)
+			: this(mainGame, mainGame.GraphicsDevice.Viewport.Width, mainGame.GraphicsDevice.Viewport.Height)
+		{
+		}
+
 		public void AddToScene(IUpdateable component)
 		{
-			if (component is AABB)
+			if (component is Box)
 			{
-				PhysicsEngine.Add(component as AABB);
+				PhysicsEngine.Add(component as Box);
 			}
 			else
 			{
@@ -49,9 +56,9 @@ namespace MonoGameClassLibrary
 
 		public void RemoveFromScene(IUpdateable component)
 		{
-			if (component is AABB)
+			if (component is Box)
 			{
-				PhysicsEngine.Remove(component as AABB);
+				PhysicsEngine.Remove(component as Box);
 			}
 			else
 			{
@@ -82,7 +89,7 @@ namespace MonoGameClassLibrary
 
 		public virtual void Draw(GameTime gameTime)
 		{
-			MainGame.GraphicsDevice.Clear(Color.Transparent);
+			MainGame.GraphicsDevice.Clear(BackgroundColor);
 
 			//Background
 			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
@@ -101,7 +108,7 @@ namespace MonoGameClassLibrary
 			MainGame.SpriteBatch.End();
 
 			//Middleground
-			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.Transform);
+			MainGame.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Camera.TransformMatrix);
 			for (; i < Drawables.Count; i++)
 			{
 				if (Drawables.Values[i].DrawOrder != Sprite.FOREGROUND)

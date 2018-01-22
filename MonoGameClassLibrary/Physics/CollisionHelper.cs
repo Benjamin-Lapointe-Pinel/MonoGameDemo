@@ -10,11 +10,11 @@ namespace MonoGameClassLibrary.Physics
 {
 	public static class CollisionHelper
 	{
-		public static void SetCollisionNotification(AABB sender, SpatialGrid spatialGrid)
+		public static void SetCollisionNotification(Box sender, SpatialGrid spatialGrid)
 		{
-			AABB copy = new AABB(sender);
+			Box copy = new Box(sender);
 			copy.Inflate(1, 1);
-			foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
+			foreach (Box aabb in spatialGrid.GetProbableCollisions(sender))
 			{
 				if (aabb.Intersects(copy))
 				{
@@ -25,39 +25,38 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		//Use with caution
-		public static void ClassicCollision(Box sender, SpatialGrid spatialGrid)
+		public static void ClassicCollision(KineticBox sender, SpatialGrid spatialGrid)
 		{
 			if (sender.InteractWithSolid)
 			{
 				Vector2 exitVector = Vector2.Zero;
 
-				int total = 0;
-				foreach (AABB collision in spatialGrid.GetProbableSolidCollisions(sender))
+				int total = 1;
+				foreach (Box collision in spatialGrid.GetProbableSolidCollisions(sender))
 				{
 					if (collision.Intersects(sender))
 					{
-						exitVector += ExitVector(sender, collision);
+						exitVector += sender.ExitVector(collision);
 						total++;
 					}
 				}
-				if (total > 0)
+				if (exitVector != Vector2.Zero)
 				{
 					exitVector /= total;
-					AABB copy = ResolveMovementCollision(sender, exitVector, spatialGrid);
-					sender.Location = copy.Location;
+					sender.Offset(exitVector);
 				}
 			}
 		}
 
-		public static void ExpulseCollision(AABB sender, SpatialGrid spatialGrid)
+		public static void ExpulseCollision(Box sender, SpatialGrid spatialGrid)
 		{
 			if (sender.Solid)
 			{
-				foreach (AABB aabb in spatialGrid.GetProbableCollisions(sender))
+				foreach (Box aabb in spatialGrid.GetProbableCollisions(sender))
 				{
-					if (aabb is Box)
+					if (aabb is KineticBox)
 					{
-						Box box = aabb as Box;
+						KineticBox box = aabb as KineticBox;
 						if ((box.InteractWithSolid) && (box.Intersects(sender)))
 						{
 							ClassicCollision(box, spatialGrid);
@@ -67,42 +66,42 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private static Vector2 ExitVector(AABB collision, AABB collisionWith)
-		{
-			AABB intersection = AABB.Intersect(collision, collisionWith);
-			Vector2 intersectionVector = new Vector2(intersection.Width, intersection.Height);
-			Vector2 directionVector = collision.Center - collisionWith.Center;
+		//private static Vector2 ExitVector(Box collision, Box collisionWith)
+		//{
+		//	Box intersection = Box.Intersect(collision, collisionWith);
+		//	Vector2 intersectionVector = new Vector2(intersection.Width, intersection.Height);
+		//	Vector2 directionVector = collision.Center - collisionWith.Center;
+		//
+		//	if (directionVector == Vector2.Zero)
+		//	{
+		//		directionVector.X = -1;
+		//	}
+		//
+		//	Vector2 exitVector = intersectionVector * (directionVector / directionVector.Length());
+		//
+		//	if ((exitVector.Y != 0) && (Math.Abs(exitVector.X) > Math.Abs(exitVector.Y)))
+		//	{
+		//		exitVector.X = 0;
+		//	}
+		//	else if ((exitVector.X != 0) && (Math.Abs(exitVector.Y) > Math.Abs(exitVector.X)))
+		//	{
+		//		exitVector.Y = 0;
+		//	}
+		//
+		//	return exitVector;
+		//}
 
-			if (directionVector == Vector2.Zero)
-			{
-				directionVector.X = -1;
-			}
-
-			Vector2 exitVector = intersectionVector * (directionVector / directionVector.Length());
-
-			if ((exitVector.Y != 0) && (Math.Abs(exitVector.X) > Math.Abs(exitVector.Y)))
-			{
-				exitVector.X = 0;
-			}
-			else if ((exitVector.X != 0) && (Math.Abs(exitVector.Y) > Math.Abs(exitVector.X)))
-			{
-				exitVector.Y = 0;
-			}
-
-			return exitVector;
-		}
-
-		public static void MovementCollision(Box box, SpatialGrid spatialGrid)
+		public static void MovementCollision(KineticBox box, SpatialGrid spatialGrid)
 		{
 			//S'il y a vraiment collision
 			if (Intersect(box, spatialGrid.GetProbableSolidCollisions(box)))
 			{
 				Vector2 exitVector = box.OldLocation - box.Location;
 
-				Box copy = ResolveMovementCollision(box, exitVector, spatialGrid);
+				KineticBox copy = ResolveMovementCollision(box, exitVector, spatialGrid);
 
 				Vector2 finalMovement = box.Location - copy.Location;
-				IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(copy);
+				IEnumerable<Box> solids = spatialGrid.GetProbableSolidCollisions(copy);
 				if (((finalMovement.X < 0) && (LeftCollision(copy, solids))) ||
 					((finalMovement.X > 0) && ((RightCollision(copy, solids)))))
 				{
@@ -128,9 +127,9 @@ namespace MonoGameClassLibrary.Physics
 			}
 		}
 
-		private static Box ResolveMovementCollision(Box box, Vector2 exitVector, SpatialGrid spatialGrid)
+		private static KineticBox ResolveMovementCollision(KineticBox box, Vector2 exitVector, SpatialGrid spatialGrid)
 		{
-			Box copy = new Box(box);
+			KineticBox copy = new KineticBox(box);
 			//Tant que la collision n'est pas résolue
 			while (copy.Location != copy.OldLocation) //Pourrait être optimisé contre une perte de précision?
 			{
@@ -150,9 +149,9 @@ namespace MonoGameClassLibrary.Physics
 			return copy;
 		}
 
-		public static bool Intersect(AABB main, IEnumerable<AABB> aabbs)
+		public static bool Intersect(Box main, IEnumerable<Box> aabbs)
 		{
-			foreach (AABB aabb in aabbs)
+			foreach (Box aabb in aabbs)
 			{
 				if (aabb.Intersects(main))
 				{
@@ -162,9 +161,9 @@ namespace MonoGameClassLibrary.Physics
 			return false;
 		}
 
-		public static bool LeftCollision(AABB main, IEnumerable<AABB> aabbs)
+		public static bool LeftCollision(Box main, IEnumerable<Box> aabbs)
 		{
-			foreach (AABB aabb in aabbs)
+			foreach (Box aabb in aabbs)
 			{
 				if (aabb.RightCollision(main))
 				{
@@ -174,9 +173,9 @@ namespace MonoGameClassLibrary.Physics
 			return false;
 		}
 
-		public static bool RightCollision(AABB main, IEnumerable<AABB> aabbs)
+		public static bool RightCollision(Box main, IEnumerable<Box> aabbs)
 		{
-			foreach (AABB aabb in aabbs)
+			foreach (Box aabb in aabbs)
 			{
 				if (aabb.LeftCollision(main))
 				{
@@ -186,9 +185,9 @@ namespace MonoGameClassLibrary.Physics
 			return false;
 		}
 
-		public static bool TopCollision(AABB main, IEnumerable<AABB> aabbs)
+		public static bool TopCollision(Box main, IEnumerable<Box> aabbs)
 		{
-			foreach (AABB aabb in aabbs)
+			foreach (Box aabb in aabbs)
 			{
 				if (aabb.BottomCollision(main))
 				{
@@ -198,9 +197,9 @@ namespace MonoGameClassLibrary.Physics
 			return false;
 		}
 
-		public static bool BottomCollision(AABB main, IEnumerable<AABB> aabbs)
+		public static bool BottomCollision(Box main, IEnumerable<Box> aabbs)
 		{
-			foreach (AABB aabb in aabbs)
+			foreach (Box aabb in aabbs)
 			{
 				if (aabb.TopCollision(main))
 				{
@@ -211,10 +210,10 @@ namespace MonoGameClassLibrary.Physics
 		}
 
 		//C'est sacré
-		public static void StopSpeed(Box box, SpatialGrid spatialGrid)
+		public static void StopSpeed(KineticBox box, SpatialGrid spatialGrid)
 		{
 			//Restore l'ancienne vitesse en vérifiant quels côtés ont fait la collision
-			IEnumerable<AABB> solids = spatialGrid.GetProbableSolidCollisions(box);
+			IEnumerable<Box> solids = spatialGrid.GetProbableSolidCollisions(box);
 			if (((box.Speed.X <= 0) && (LeftCollision(box, solids))) ||
 				((box.Speed.X >= 0) && ((RightCollision(box, solids)))))
 			{
